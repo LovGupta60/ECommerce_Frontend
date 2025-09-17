@@ -128,7 +128,7 @@ export default function AdminItemPage() {
   };
 
   return (
-    <div className="p-6 max-w-lg mx-auto">
+  <div className="p-4 sm:p-6 w-full max-w-lg mx-auto">
       <h2 className="text-2xl font-bold mb-4">
         {id ? "Edit Item" : "Create Item"}
       </h2>

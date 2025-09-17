@@ -5,6 +5,38 @@
   text-align: center;
 }
 
+/* Mobile-friendly adjustments */
+@media (max-width: 640px) {
+  #root {
+    padding: 0.5rem;
+  }
+  /* ensure wide images and large fixed-width elements scale */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+  /* prevent accidental horizontal overflow */
+  body, #root {
+    overflow-x: hidden;
+  }
+}
+
+/* Ensure the app uses full viewport width on small screens (avoid centered narrow column) */
+@media (max-width: 640px) {
+  #root {
+    max-width: 100% !important;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+  .container {
+    width: 100% !important;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}
+
 .logo {
   height: 6em;
   padding: 1.5em;

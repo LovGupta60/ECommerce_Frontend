@@ -101,7 +101,7 @@ export default function ProfilePage() {
 
   // Render profile page
   return (
-    <div className="max-w-lg mx-auto mt-10 p-6 bg-white shadow-lg rounded-2xl">
+  <div className="w-full max-w-lg mx-auto mt-6 sm:mt-10 p-4 sm:p-6 bg-white shadow-lg rounded-2xl">
       <h1 className="text-2xl font-bold mb-4 text-center text-gray-800">
         My Profile
       </h1>

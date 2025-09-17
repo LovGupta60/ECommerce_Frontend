@@ -62,7 +62,7 @@ export default function ItemDetails() {
   if (!item) return <div className="p-10 text-center">Item not found.</div>;
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+  <div className="w-full max-w-4xl mx-auto p-4 sm:p-6 bg-white rounded-lg shadow-lg">
       {/* Image */}
       {item.imagePath && (
         <Zoom>

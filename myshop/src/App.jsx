@@ -19,7 +19,7 @@ export default function App() {
     <div className="min-h-screen flex flex-col bg-gray-50 text-gray-800">
       <Navbar />
       <main className="flex-1 px-4 py-8">
-        <div className="container mx-auto">
+        <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<Home />} />
@@ -44,7 +44,7 @@ export default function App() {
       </main>
 
       <footer className="bg-white border-t py-6">
-        <div className="container mx-auto text-center text-sm text-gray-600">
+        <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 text-center text-sm text-gray-600">
           © {new Date().getFullYear()} MyShop — Your friendly neighborhood shop
         </div>
       </footer>

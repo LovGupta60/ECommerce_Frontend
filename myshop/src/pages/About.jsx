@@ -6,7 +6,7 @@ const historyData = [
     title: "Founded by Laxman Prasad Gupta",
     description:
       "The journey began when Laxman Prasad Gupta started a small family business to serve the local community with honest prices and reliable service.",
-    photo: "images/DadaJi.png",
+    photo: "images/Laxam.png",
   },
   {
     year: "Expansion",
@@ -21,6 +21,13 @@ const historyData = [
     description:
       "Today, Sanjay Gupta continues to run the business with the same dedication, combining tradition with modern retail practices to better serve customers.",
     photo: "images/sanjay.png",
+  },
+  {
+    year: "Present",
+    title: "Now Managed by Rahul Gupta",
+    description:
+    "Today, Rahul Gupta continues to run the business with the same dedication, combining tradition with modern retail practices to better serve customers, while Rahul Gupta, who has been handling the business since 2019, now manages operations completely, bringing years of experience and significantly contributing to the growth of Gupta Kitchen Appliances.",
+    photo: "images/Rahul.jpg",
   },
 ];
 

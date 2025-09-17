@@ -38,67 +38,76 @@ const outlets = [
 
 export default function Home() {
   return (
-    <div className="space-y-16 px-6 md:px-12 lg:px-20 py-10 bg-gray-50">
+    <div className="px-4 sm:px-6 md:px-12 lg:px-20 py-8 bg-gray-50 space-y-12">
       {/* Hero Section */}
-      <section className="rounded-lg bg-gradient-to-r from-white to-gray-100 p-12 shadow-xl flex flex-col lg:flex-row items-center lg:items-start gap-10">
-        <div className="max-w-xl">
-          <h1 className="text-5xl font-extrabold text-blue-800 leading-tight">
+  <section className="flex flex-col lg:flex-row items-center gap-8 bg-gradient-to-r from-white to-gray-100 p-6 rounded-lg shadow-lg">
+        <div className="text-center lg:text-left max-w-xl">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-blue-800 leading-tight">
             Welcome to{" "}
             <span className="text-brand-500 underline decoration-brand-300 decoration-4">
-                Gupta Hosiery and Crockery Store Offical site
+              Gupta Hosiery and Crockery Store
             </span>
           </h1>
-          <p className="mt-6 text-gray-700 text-lg leading-relaxed tracking-wide">
+          <p className="mt-4 sm:mt-6 text-gray-700 text-base sm:text-lg md:text-lg leading-relaxed tracking-wide">
             Small shop. Big heart. Discover our curated selection of kitchen
             appliances, hosiery, and home goods designed to brighten your daily
             life.
           </p>
-          <div className="mt-8">
+          <div className="mt-6 sm:mt-8">
             <Link
               to="/items"
-              className="inline-block px-7 py-3 bg-brand-500 hover:bg-brand-600 transition rounded-lg text-white font-semibold shadow-lg"
+              className="inline-block px-6 py-3 bg-brand-500 hover:bg-brand-600 transition rounded-lg text-white font-semibold shadow-lg"
             >
               Browse Items
             </Link>
           </div>
         </div>
-        <div>
+        <div className="flex justify-center lg:justify-end w-full lg:w-auto">
           <img
             src="images/logo2.png"
             alt="shop"
-            className="w-80 rounded-2xl shadow-2xl object-cover"
+            className="w-full sm:w-72 md:w-80 lg:w-96 max-w-xs sm:max-w-none rounded-2xl shadow-2xl object-cover"
           />
         </div>
       </section>
-       {/* Our Outlets Section */}
+
+      {/* Brand Marquee */}
       <section>
-         <div className="md:col-span-3">
-          {/* Continuous marquee-style brand carousel (full-width). */}
-          <BrandMarquee speed={60} />
-          {/* Fallback slider if you prefer the previous style: */}
-          {/* <BrandSlider /> */}
-        </div>
-        <h2 className="text-3xl font-extrabold mb-8 text-blue-800 border-b-2 border-brand-500 pb-3">
+        <BrandMarquee speed={60} />
+      </section>
+
+      {/* Our Outlets Section */}
+      <section>
+        <h2 className="text-2xl sm:text-3xl font-extrabold mb-6 text-blue-800 border-b-2 border-brand-500 pb-2">
           Our Outlets
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
           {outlets.map(
             ({ id, name, address, description, photo, openOn, since }) => (
               <div
                 key={id}
-                className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-2 duration-300 overflow-hidden"
+                className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-1 duration-300 overflow-hidden"
               >
-                <img src={photo} alt={name} className="w-full h-56 object-cover" />
-                <div className="p-6">
-                  <h3 className="font-bold text-xl text-brand-600">{name}</h3>
-                  <p className="text-gray-600 mt-1 text-sm font-medium">{address}</p>
-                  <p className="text-gray-700 mt-4 text-sm leading-relaxed tracking-wide">
+                <img
+                  src={photo}
+                  alt={name}
+                  className="w-full h-48 sm:h-56 md:h-60 object-cover"
+                />
+                <div className="p-4 sm:p-6">
+                  <h3 className="font-bold text-lg sm:text-xl text-brand-600">
+                    {name}
+                  </h3>
+                  <p className="text-gray-600 mt-1 text-sm sm:text-base font-medium">
+                    {address}
+                  </p>
+                  <p className="text-gray-700 mt-3 text-sm sm:text-base leading-relaxed tracking-wide">
                     {description}
                   </p>
-                  <p className="mt-4 text-sm font-semibold text-green-600">
-                    <span className="font-bold text-gray-800">Open On:</span> {openOn}
+                  <p className="mt-3 text-sm sm:text-base font-semibold text-green-600">
+                    <span className="font-bold text-gray-800">Open On:</span>{" "}
+                    {openOn}
                   </p>
-                  <p className="mt-1 text-sm font-semibold text-gray-700">
+                  <p className="mt-1 text-sm sm:text-base font-semibold text-gray-700">
                     <span className="font-bold">Since:</span> {since}
                   </p>
                 </div>
@@ -109,29 +118,25 @@ export default function Home() {
       </section>
 
       {/* Info Section */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-10">
-        {/* Brand slider placed above history (spans full width on small screens) */}
-  
-
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
         {/* Our History */}
-        <div className="bg-white p-10 rounded-xl shadow-md hover:shadow-xl transition transform hover:-translate-y-1 duration-300">
-          <h3 className="font-bold text-2xl text-brand-500 border-b-4 border-brand-500 pb-3">
+        <div className="bg-white p-6 sm:p-8 rounded-xl shadow-md hover:shadow-xl transition transform hover:-translate-y-1 duration-300">
+          <h3 className="font-bold text-xl sm:text-2xl text-brand-500 border-b-4 border-brand-500 pb-2">
             Our History
           </h3>
-          <p className="mt-6 text-gray-700 text-base leading-relaxed tracking-wide">
+          <p className="mt-4 text-gray-700 text-sm sm:text-base leading-relaxed tracking-wide">
             Since 1970, we’ve grown from a humble wool shop serving our local
             community into a trusted neighborhood store. We pride ourselves on
-            quality products and personalized service, making us your go-to
-            destination for household essentials.
+            quality products and personalized service.
           </p>
         </div>
 
         {/* Contact */}
-        <div className="bg-white p-10 rounded-xl shadow-md hover:shadow-xl transition transform hover:-translate-y-1 duration-300">
-          <h3 className="font-bold text-2xl text-brand-500 border-b-4 border-brand-500 pb-3">
+        <div className="bg-white p-6 sm:p-8 rounded-xl shadow-md hover:shadow-xl transition transform hover:-translate-y-1 duration-300">
+          <h3 className="font-bold text-xl sm:text-2xl text-brand-500 border-b-4 border-brand-500 pb-2">
             Contact
           </h3>
-          <p className="mt-6 text-gray-700 text-base leading-relaxed tracking-wide space-y-2">
+          <p className="mt-4 text-gray-700 text-sm sm:text-base leading-relaxed tracking-wide space-y-2">
             <span>
               Phone:{" "}
               <a
@@ -155,18 +160,16 @@ export default function Home() {
         </div>
 
         {/* Visit Us */}
-        <div className="bg-white p-10 rounded-xl shadow-md hover:shadow-xl transition transform hover:-translate-y-1 duration-300">
-          <h3 className="font-bold text-2xl text-brand-500 border-b-4 border-brand-500 pb-3">
+        <div className="bg-white p-6 sm:p-8 rounded-xl shadow-md hover:shadow-xl transition transform hover:-translate-y-1 duration-300">
+          <h3 className="font-bold text-xl sm:text-2xl text-brand-500 border-b-4 border-brand-500 pb-2">
             Visit Us
           </h3>
-          <p className="mt-6 text-gray-700 text-base leading-relaxed tracking-wide">
+          <p className="mt-4 text-gray-700 text-sm sm:text-base leading-relaxed tracking-wide">
             Kaiper Ganj, Kotwali Road, Rae Bareli. We’re always ready to
             welcome you with a smile!
           </p>
         </div>
       </section>
-
-  
     </div>
   );
 }

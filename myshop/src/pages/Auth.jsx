@@ -80,7 +80,7 @@ const Auth = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50">
-      <div className="bg-white p-8 rounded-2xl shadow-lg w-96">
+  <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg w-full max-w-md mx-auto">
         {/* Tabs */}
         <div className="flex mb-6">
           <button

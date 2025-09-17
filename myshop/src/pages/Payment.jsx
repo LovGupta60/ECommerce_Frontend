@@ -48,7 +48,7 @@ const Payment = () => {
   };
 
   return (
-    <div className="p-6 max-w-md mx-auto border rounded-lg shadow">
+  <div className="p-4 sm:p-6 w-full max-w-md mx-auto border rounded-lg shadow">
       <h1 className="text-2xl font-bold mb-4 text-center">Payment</h1>
       <p className="text-lg font-semibold mb-2">Amount to Pay: ₹{total}</p>
       <p className="text-sm text-gray-600 mb-4">
