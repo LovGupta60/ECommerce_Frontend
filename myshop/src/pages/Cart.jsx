@@ -14,9 +14,12 @@ export default function Cart() {
         {cartItems.map((item) => (
           <div className="col-md-4 mb-3" key={item.id}>
             <div className="card h-100">
-              {/* ✅ Backend sends `imagePath`, not `imageUrl` */}
               <img
-                src={item.imagePath ? `http://localhost:8080/${item.imagePath}` : "/placeholder.png"}
+                src={
+                  item.imagePath
+                    ? `http://localhost:8080/${item.imagePath}`
+                    : "/placeholder.png"
+                }
                 className="card-img-top"
                 alt={item.name}
                 style={{ height: "200px", objectFit: "contain" }}

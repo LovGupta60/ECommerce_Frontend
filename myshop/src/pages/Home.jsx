@@ -1,5 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import BrandSlider from "../components/BrandSlider";
+import BrandMarquee from "../components/BrandMarquee";
 
 const outlets = [
   {
@@ -71,6 +73,14 @@ export default function Home() {
 
       {/* Info Section */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-10">
+        {/* Brand slider placed above history (spans full width on small screens) */}
+        <div className="md:col-span-3">
+          {/* Continuous marquee-style brand carousel (full-width). */}
+          <BrandMarquee speed={60} />
+          {/* Fallback slider if you prefer the previous style: */}
+          {/* <BrandSlider /> */}
+        </div>
+
         {/* Our History */}
         <div className="bg-white p-10 rounded-xl shadow-md hover:shadow-xl transition transform hover:-translate-y-1 duration-300">
           <h3 className="font-bold text-2xl text-brand-500 border-b-4 border-brand-500 pb-3">
