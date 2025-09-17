@@ -70,16 +70,48 @@ export default function Home() {
           />
         </div>
       </section>
-
-      {/* Info Section */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-10">
-        {/* Brand slider placed above history (spans full width on small screens) */}
-        <div className="md:col-span-3">
+       {/* Our Outlets Section */}
+      <section>
+         <div className="md:col-span-3">
           {/* Continuous marquee-style brand carousel (full-width). */}
           <BrandMarquee speed={60} />
           {/* Fallback slider if you prefer the previous style: */}
           {/* <BrandSlider /> */}
         </div>
+        <h2 className="text-3xl font-extrabold mb-8 text-blue-800 border-b-2 border-brand-500 pb-3">
+          Our Outlets
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+          {outlets.map(
+            ({ id, name, address, description, photo, openOn, since }) => (
+              <div
+                key={id}
+                className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-2 duration-300 overflow-hidden"
+              >
+                <img src={photo} alt={name} className="w-full h-56 object-cover" />
+                <div className="p-6">
+                  <h3 className="font-bold text-xl text-brand-600">{name}</h3>
+                  <p className="text-gray-600 mt-1 text-sm font-medium">{address}</p>
+                  <p className="text-gray-700 mt-4 text-sm leading-relaxed tracking-wide">
+                    {description}
+                  </p>
+                  <p className="mt-4 text-sm font-semibold text-green-600">
+                    <span className="font-bold text-gray-800">Open On:</span> {openOn}
+                  </p>
+                  <p className="mt-1 text-sm font-semibold text-gray-700">
+                    <span className="font-bold">Since:</span> {since}
+                  </p>
+                </div>
+              </div>
+            )
+          )}
+        </div>
+      </section>
+
+      {/* Info Section */}
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-10">
+        {/* Brand slider placed above history (spans full width on small screens) */}
+  
 
         {/* Our History */}
         <div className="bg-white p-10 rounded-xl shadow-md hover:shadow-xl transition transform hover:-translate-y-1 duration-300">
@@ -134,37 +166,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Our Outlets Section */}
-      <section>
-        <h2 className="text-3xl font-extrabold mb-8 text-blue-800 border-b-2 border-brand-500 pb-3">
-          Our Outlets
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-          {outlets.map(
-            ({ id, name, address, description, photo, openOn, since }) => (
-              <div
-                key={id}
-                className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-2 duration-300 overflow-hidden"
-              >
-                <img src={photo} alt={name} className="w-full h-56 object-cover" />
-                <div className="p-6">
-                  <h3 className="font-bold text-xl text-brand-600">{name}</h3>
-                  <p className="text-gray-600 mt-1 text-sm font-medium">{address}</p>
-                  <p className="text-gray-700 mt-4 text-sm leading-relaxed tracking-wide">
-                    {description}
-                  </p>
-                  <p className="mt-4 text-sm font-semibold text-green-600">
-                    <span className="font-bold text-gray-800">Open On:</span> {openOn}
-                  </p>
-                  <p className="mt-1 text-sm font-semibold text-gray-700">
-                    <span className="font-bold">Since:</span> {since}
-                  </p>
-                </div>
-              </div>
-            )
-          )}
-        </div>
-      </section>
+  
     </div>
   );
 }

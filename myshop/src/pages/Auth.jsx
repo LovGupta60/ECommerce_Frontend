@@ -34,6 +34,19 @@ const Auth = () => {
         if (res.ok) {
           const data = await res.json();
           localStorage.setItem("token", data.token); // save token
+          // Debug: print token and decoded payload so developer can verify roles
+          try {
+            // eslint-disable-next-line no-console
+            console.debug("[Auth] received token:", data.token);
+            const payload = JSON.parse(atob(data.token.split(".")[1]));
+            // eslint-disable-next-line no-console
+            console.debug("[Auth] decoded payload:", payload);
+          } catch (e) {
+            // eslint-disable-next-line no-console
+            console.debug("[Auth] failed to decode token payload", e);
+          }
+          // persist admin flag so UI (Navbar, CartContext) can hide cart for admins
+          localStorage.setItem("isAdmin", isAdmin ? "true" : "false");
           navigate("/"); // go home
         } else {
           alert("Invalid credentials");

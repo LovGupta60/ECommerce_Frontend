@@ -28,7 +28,7 @@ export default function Items() {
     console.error("Invalid token", err);
   }
 
-  // Fetch items from API (always full list)
+  // Fetch items from API
   const fetchItems = async () => {
     setLoading(true);
     try {
@@ -53,12 +53,11 @@ export default function Items() {
     }
   };
 
-  // Initial load
   useEffect(() => {
     fetchItems();
   }, []);
 
-  // Handle live search with debounce (frontend filter only)
+  // Handle search input with debounce
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearch(value);
@@ -80,7 +79,7 @@ export default function Items() {
     return Array.from(set).map((t) => t.charAt(0).toUpperCase() + t.slice(1));
   }, [products]);
 
-  // ✅ Apply both search + category filter
+  // Filter products by search + category
   const filtered = products.filter((p) => {
     const matchCategory =
       active === "All" ||
@@ -103,7 +102,7 @@ export default function Items() {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error("Failed to delete item");
-      fetchItems(); // refetch full list
+      fetchItems();
     } catch (err) {
       alert(err.message);
     }
@@ -143,10 +142,7 @@ export default function Items() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-4">
         {filtered.map((p) => (
-          <div
-            key={p.id}
-            className="border rounded-lg p-4 bg-white shadow-md relative"
-          >
+          <div key={p.id} className="border rounded-lg p-4 bg-white shadow-md relative">
             {p.imagePath && (
               <img
                 src={`http://localhost:8080${encodeURI(p.imagePath)}`}
@@ -155,9 +151,7 @@ export default function Items() {
               />
             )}
             <h3 className="font-semibold">{p.name}</h3>
-            <p className="text-sm text-gray-600">
-              {p.brand} - {p.type}
-            </p>
+            <p className="text-sm text-gray-600">{p.brand} - {p.type}</p>
             <p className="text-sm">{p.description}</p>
             <p className="mt-1 font-medium">₹{p.price}</p>
             <p className="text-xs text-gray-500">Stock: {p.stockQty}</p>
@@ -166,9 +160,7 @@ export default function Items() {
               {isAdmin ? (
                 <>
                   <button
-                    onClick={() =>
-                      (window.location.href = `/admin/items/edit/${p.id}`)
-                    }
+                    onClick={() => (window.location.href = `/admin/items/edit/${p.id}`)}
                     className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-sm"
                   >
                     Edit
@@ -183,7 +175,10 @@ export default function Items() {
               ) : (
                 <>
                   <button
-                    onClick={() => addToCart(p)}
+                    onClick={async () => {
+                      const ok = await addToCart(p.id, 1);
+                      if (!ok) alert('Failed to add item to cart. Please login and try again.');
+                    }}
                     className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-sm"
                   >
                     Add to Cart
