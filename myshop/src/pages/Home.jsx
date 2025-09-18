@@ -11,7 +11,7 @@ const outlets = [
     description:
       "Our flagship store, offering the full range of products with personalized and friendly service.",
     photo: "images/GH.png",
-    openOn: "Mon - Sat: 9:00 AM - 8:00 PM",
+    openOn: "Wed - Mon: 10:00 AM - 9:00 PM",
     since: "1970",
   },
   {
@@ -73,7 +73,7 @@ export default function Home() {
 
       {/* Brand Marquee */}
       <section>
-        <BrandMarquee speed={60} />
+        <BrandMarquee speed={80} />
       </section>
 
       {/* Our Outlets Section */}

@@ -74,7 +74,7 @@ export default function Navbar() {
 
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3">
-          <div className="bg-white text-blue-600 rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg shadow-md flex-shrink-0">
+          <div className="hidden sm:flex bg-white text-blue-600 rounded-full w-10 h-10 sm:items-center sm:justify-center font-bold text-lg shadow-md flex-shrink-0">
             S
           </div>
           {/* always show full brand text (no hiding) */}

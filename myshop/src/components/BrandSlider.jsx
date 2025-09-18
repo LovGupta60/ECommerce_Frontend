@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import brands from "../data/brands";
 
-export default function BrandSlider({ interval = 2500 }) {
+export default function BrandSlider({ interval = 2000 }) {
   const [index, setIndex] = useState(0);
   const timerRef = useRef(null);
 
