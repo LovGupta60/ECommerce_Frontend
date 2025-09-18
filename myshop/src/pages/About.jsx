@@ -5,7 +5,7 @@ const historyData = [
     year: "Early Days",
     title: "Founded by Laxman Prasad Gupta",
     description:
-      "The journey began when Laxman Prasad Gupta started a small family business to serve the local community with honest prices and reliable service.",
+      "The journey began when Laxman Prasad Gupta started a small family business to serve the local community with honest prices and reliable service .",
     photo: "images/Laxam.png",
   },
   {
@@ -26,7 +26,7 @@ const historyData = [
     year: "Present",
     title: "Now Managed by Rahul Gupta",
     description:
-    "Today, Rahul Gupta continues to run the business with the same dedication, combining tradition with modern retail practices to better serve customers, while Rahul Gupta, who has been handling the business since 2019, now manages operations completely, bringing years of experience and significantly contributing to the growth of Gupta Kitchen Appliances.",
+    "Today, Rahul Gupta continues to run the business with the same dedication, combining tradition with modern retail practices to better serve customers, while Rahul Gupta, who has been handling the business since 2019, now manages operations completely, bringing years of experience and significantly contributing to the growth of Gupta Kitchen Appliances infront of Vishal mega mart.",
     photo: "images/Rahul.jpg",
   },
 ];
