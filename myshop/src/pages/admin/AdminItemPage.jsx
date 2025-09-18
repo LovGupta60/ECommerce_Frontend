@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getItem, saveItem, uploadItemImage } from "../../api"; // your api.js
+import { saveItem, uploadItemImage, getItem } from "../adminApi";
 
 export default function AdminItemPage() {
-  const { id } = useParams(); // undefined → create, defined → edit
+  const { id } = useParams(); 
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
 
+  const [token, setToken] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     brand: "",
@@ -18,9 +18,14 @@ export default function AdminItemPage() {
     image: null,
     imagePath: "",
   });
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Load token from localStorage safely
+  useEffect(() => {
+    const t = localStorage.getItem("token");
+    if (t) setToken(t);
+  }, []);
 
   // Fetch item if editing
   useEffect(() => {
@@ -28,7 +33,7 @@ export default function AdminItemPage() {
 
     setLoading(true);
     getItem(id, token)
-      .then((data) =>
+      .then((data) => {
         setFormData({
           name: data.name || "",
           brand: data.brand || "",
@@ -39,52 +44,34 @@ export default function AdminItemPage() {
           stockQty: data.stockQty || "",
           image: null,
           imagePath: data.imagePath || "",
-        })
-      )
+        });
+      })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [id, token]);
 
-  // Handle input change
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    if (files) {
-      setFormData((prev) => ({ ...prev, [name]: files[0] }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
+    setFormData((prev) => ({
+      ...prev,
+      [name]: files ? files[0] : value,
+    }));
   };
 
-  // Handle submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
+    if (!token) return setError("Please login again.");
 
-    if (!token) {
-      setError("No token found. Please log in again.");
-      setLoading(false);
-      return;
-    }
-
+    setLoading(true);
     try {
-      const payload = {
-        name: formData.name,
-        brand: formData.brand,
-        type: formData.type,
-        description: formData.description,
-        warranty: formData.warranty,
-        price: formData.price,
-        stockQty: formData.stockQty,
-      };
-
-      const savedItem = await saveItem(id, payload, token);
+      const savedItem = await saveItem(id, formData, token);
 
       if (formData.image) {
         await uploadItemImage(savedItem.id, formData.image, token);
       }
 
-      navigate("/items"); // go back to items list
+      navigate("/admin/items");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -93,11 +80,8 @@ export default function AdminItemPage() {
   };
 
   return (
-    <div className="p-4 sm:p-6 w-full max-w-lg mx-auto">
-      <h2 className="text-2xl font-bold mb-4">
-        {id ? "Edit Item" : "Create Item"}
-      </h2>
-
+    <div className="p-6 max-w-lg mx-auto">
+      <h2 className="text-2xl font-bold mb-4">{id ? "Edit Item" : "Create Item"}</h2>
       {error && <div className="text-red-600 mb-2">{error}</div>}
 
       {formData.imagePath && (
@@ -109,46 +93,18 @@ export default function AdminItemPage() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-3">
-        <input
-          type="text"
-          name="name"
-          placeholder="Item Name"
-          value={formData.name}
-          onChange={handleChange}
-          className="border p-2 w-full rounded"
-          required
-        />
-        <input
-          type="text"
-          name="brand"
-          placeholder="Brand"
-          value={formData.brand}
-          onChange={handleChange}
-          className="border p-2 w-full rounded"
-        />
-        <input
-          type="text"
-          name="type"
-          placeholder="Type"
-          value={formData.type}
-          onChange={handleChange}
-          className="border p-2 w-full rounded"
-        />
-        <textarea
-          name="description"
-          placeholder="Description"
-          value={formData.description}
-          onChange={handleChange}
-          className="border p-2 w-full rounded"
-        />
-        <input
-          type="text"
-          name="warranty"
-          placeholder="Warranty"
-          value={formData.warranty}
-          onChange={handleChange}
-          className="border p-2 w-full rounded"
-        />
+        {["name","brand","type","description","warranty"].map(field => (
+          <input
+            key={field}
+            type="text"
+            name={field}
+            placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+            value={formData[field]}
+            onChange={handleChange}
+            className="border p-2 w-full rounded"
+            required={["name","price","stockQty"].includes(field)}
+          />
+        ))}
         <input
           type="number"
           name="price"
@@ -174,7 +130,6 @@ export default function AdminItemPage() {
           onChange={handleChange}
           className="border p-2 w-full rounded"
         />
-
         <button
           type="submit"
           disabled={loading}
