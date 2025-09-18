@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { saveItem, uploadItemImage, getItem } from "../adminApi";
+// Correct import for your api.js
+import { saveItem, uploadItemImage, getItem } from "../../api"; 
 
 export default function AdminItemPage() {
   const { id } = useParams(); 
