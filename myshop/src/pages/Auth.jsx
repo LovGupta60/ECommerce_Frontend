@@ -33,27 +33,29 @@ const Auth = () => {
 
         if (res.ok) {
           const data = await res.json();
-          localStorage.setItem("token", data.token); // save token
-          // Debug: print token and decoded payload so developer can verify roles
-          try {
-            // eslint-disable-next-line no-console
-            console.debug("[Auth] received token:", data.token);
-            const payload = JSON.parse(atob(data.token.split(".")[1]));
-            // eslint-disable-next-line no-console
-            console.debug("[Auth] decoded payload:", payload);
-          } catch (e) {
-            // eslint-disable-next-line no-console
-            console.debug("[Auth] failed to decode token payload", e);
-          }
-          // persist admin flag so UI (Navbar, CartContext) can hide cart for admins
+
+          // Save token and admin flag
+          localStorage.setItem("token", data.token);
           localStorage.setItem("isAdmin", isAdmin ? "true" : "false");
+
+          // ✅ Print token clearly in console
+          console.log("🔥 Login successful! Token:", data.token);
+
+          // Decode JWT payload safely
+          try {
+            const payload = JSON.parse(atob(data.token.split(".")[1]));
+            console.log("📝 Decoded JWT payload:", payload);
+          } catch (err) {
+            console.warn("⚠️ Failed to decode token payload", err);
+          }
+
           navigate("/"); // go home
         } else {
           alert("Invalid credentials");
         }
       } else {
         // REGISTER
-  const endpoint = "https://demo-deployment-ervl.onrender.com/auth/signup";
+        const endpoint = "https://demo-deployment-ervl.onrender.com/auth/signup";
         const body = { name, email: emailOrUsername, password };
 
         const res = await fetch(endpoint, {
@@ -80,7 +82,7 @@ const Auth = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50">
-  <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg w-full max-w-md mx-auto">
+      <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-lg w-full max-w-md mx-auto">
         {/* Tabs */}
         <div className="flex mb-6">
           <button
