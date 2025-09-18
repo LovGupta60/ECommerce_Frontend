@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 export default function AdminItemPage() {
-  const { id } = useParams(); // if editing
+  const { id } = useParams(); // undefined → create, defined → edit
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
@@ -14,8 +14,8 @@ export default function AdminItemPage() {
     warranty: "",
     price: "",
     stockQty: "",
-    image: null, // file
-    imagePath: "", // existing image path
+    image: null,
+    imagePath: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -24,7 +24,7 @@ export default function AdminItemPage() {
     if (!id || !token) return;
 
     setLoading(true);
-  fetch(`https://demo-deployment-ervl.onrender.com/admin/items/get/${id}`, {
+    fetch(`https://demo-deployment-ervl.onrender.com/admin/items/get/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(async (res) => {
@@ -128,7 +128,7 @@ export default function AdminItemPage() {
   };
 
   return (
-  <div className="p-4 sm:p-6 w-full max-w-lg mx-auto">
+    <div className="p-4 sm:p-6 w-full max-w-lg mx-auto">
       <h2 className="text-2xl font-bold mb-4">
         {id ? "Edit Item" : "Create Item"}
       </h2>

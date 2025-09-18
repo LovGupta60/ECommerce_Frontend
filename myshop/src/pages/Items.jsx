@@ -1,9 +1,11 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import CategoryTabs from "../components/CategoryTabs";
 import { useCart } from "../context/CartContext";
 
 export default function Items() {
   const { addToCart } = useCart();
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [active, setActive] = useState("All");
   const [loading, setLoading] = useState(true);
@@ -28,15 +30,14 @@ export default function Items() {
     console.error("Invalid token", err);
   }
 
-  // Fetch items from API
   const fetchItems = async () => {
     setLoading(true);
     try {
-  let url = `https://demo-deployment-ervl.onrender.com/items/public`;
+      let url = `https://demo-deployment-ervl.onrender.com/items/public`;
       let headers = {};
 
       if (isAdmin) {
-  url = `https://demo-deployment-ervl.onrender.com/admin/items/getall`;
+        url = `https://demo-deployment-ervl.onrender.com/admin/items/getall`;
         headers = { Authorization: `Bearer ${token}` };
       }
 
@@ -57,7 +58,6 @@ export default function Items() {
     fetchItems();
   }, []);
 
-  // Handle search input with debounce
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearch(value);
@@ -68,7 +68,6 @@ export default function Items() {
     }, 300);
   };
 
-  // Compute categories dynamically
   const categories = useMemo(() => {
     const set = new Set(
       products
@@ -79,7 +78,6 @@ export default function Items() {
     return Array.from(set).map((t) => t.charAt(0).toUpperCase() + t.slice(1));
   }, [products]);
 
-  // Filter products by search + category
   const filtered = products.filter((p) => {
     const matchCategory =
       active === "All" ||
@@ -93,11 +91,10 @@ export default function Items() {
     return matchCategory && matchSearch;
   });
 
-  // Delete item (admin)
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this item?")) return;
     try {
-  const res = await fetch(`https://demo-deployment-ervl.onrender.com/admin/items/${id}`, {
+      const res = await fetch(`https://demo-deployment-ervl.onrender.com/admin/items/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -119,7 +116,7 @@ export default function Items() {
         <h2 className="text-2xl font-bold">Items</h2>
         {isAdmin && (
           <button
-            onClick={() => (window.location.href = "/admin/items")}
+            onClick={() => navigate("/admin/items")}
             className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
           >
             + Create Item
@@ -127,7 +124,6 @@ export default function Items() {
         )}
       </div>
 
-      {/* Search bar */}
       <div className="mb-4">
         <input
           type="text"
@@ -160,7 +156,7 @@ export default function Items() {
               {isAdmin ? (
                 <>
                   <button
-                    onClick={() => (window.location.href = `/admin/items/edit/${p.id}`)}
+                    onClick={() => navigate(`/admin/items/edit/${p.id}`)}
                     className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-sm"
                   >
                     Edit
@@ -184,7 +180,7 @@ export default function Items() {
                     Add to Cart
                   </button>
                   <button
-                    onClick={() => (window.location.href = `/items/${p.id}`)}
+                    onClick={() => navigate(`/items/${p.id}`)}
                     className="bg-yellow-500 text-blue-800 px-2 py-1 rounded hover:bg-yellow-400 text-sm"
                   >
                     See More
