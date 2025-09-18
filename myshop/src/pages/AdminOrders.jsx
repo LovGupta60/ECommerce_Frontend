@@ -9,7 +9,7 @@ const AdminOrders = () => {
     const fetchOrders = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:8080/admin/orders", {
+  const res = await fetch("https://demo-deployment-ervl.onrender.com/admin/orders", {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) throw new Error("Failed to load orders");
@@ -41,7 +41,7 @@ const AdminOrders = () => {
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(
-        `http://localhost:8080/admin/orders/${order.id}/status?status=${encodeURIComponent(newStatus)}`,
+  `https://demo-deployment-ervl.onrender.com/admin/orders/${order.id}/status?status=${encodeURIComponent(newStatus)}`,
         {
           method: "PUT",
           headers: { Authorization: `Bearer ${token}` },

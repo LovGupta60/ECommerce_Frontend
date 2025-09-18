@@ -34,8 +34,8 @@ export default function ItemDetails() {
       setLoading(true);
       try {
         const url = isAdmin
-          ? `http://localhost:8080/admin/items/get/${id}`
-          : `http://localhost:8080/items/public/${id}`;
+          ? `https://demo-deployment-ervl.onrender.com/admin/items/get/${id}`
+          : `https://demo-deployment-ervl.onrender.com/items/public/${id}`;
         const headers = isAdmin && token ? { Authorization: `Bearer ${token}` } : {};
 
         const res = await fetch(url, { headers });
@@ -67,7 +67,7 @@ export default function ItemDetails() {
       {item.imagePath && (
         <Zoom>
           <img
-            src={`http://localhost:8080${encodeURI(item.imagePath)}`}
+            src={`https://demo-deployment-ervl.onrender.com${encodeURI(item.imagePath)}`}
             alt={item.name}
             className="w-full max-h-[500px] object-contain rounded-lg shadow-md mb-6"
           />

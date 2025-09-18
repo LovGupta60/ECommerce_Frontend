@@ -36,7 +36,7 @@ const Cart = () => {
     setMessage("");
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:8080/cart/checkout", {
+  const res = await fetch("https://demo-deployment-ervl.onrender.com/cart/checkout", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -70,7 +70,7 @@ const Cart = () => {
           const price = product?.price ?? product?.cost ?? 0;
           let image = product?.imagePath ?? product?.image ?? product?.img;
           if (image && image.startsWith("/")) {
-            image = `http://localhost:8080${image}`;
+            image = `https://demo-deployment-ervl.onrender.com${image}`;
           }
           return (
             <li

@@ -17,7 +17,7 @@ export default function ProfilePage() {
       return;
     }
 
-    fetch("http://localhost:8080/auth/profile", {
+  fetch("https://demo-deployment-ervl.onrender.com/auth/profile", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -53,7 +53,7 @@ export default function ProfilePage() {
     setSuccessMsg("");
 
     try {
-      const res = await fetch("http://localhost:8080/auth/profile", {
+  const res = await fetch("https://demo-deployment-ervl.onrender.com/auth/profile", {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,

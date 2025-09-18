@@ -16,7 +16,7 @@ export const CartProvider = ({ children }) => {
         return;
       }
       const headers = { Authorization: `Bearer ${token}` };
-      const res = await axios.get("http://localhost:8080/cart", { headers });
+  const res = await axios.get("https://demo-deployment-ervl.onrender.com/cart", { headers });
       setCart(res.data.items);
     } catch (err) {
       console.error("Failed to fetch cart", err);
@@ -32,7 +32,7 @@ export const CartProvider = ({ children }) => {
         return false;
       }
       const headers = { Authorization: `Bearer ${token}` };
-      await axios.post(`http://localhost:8080/cart`, { itemId, qty }, { headers });
+  await axios.post(`https://demo-deployment-ervl.onrender.com/cart`, { itemId, qty }, { headers });
       await fetchCart();
       return true;
     } catch (err) {
@@ -48,7 +48,7 @@ export const CartProvider = ({ children }) => {
       if (!token || isAdmin) return;
 
       const headers = { Authorization: `Bearer ${token}` };
-      await axios.delete(`http://localhost:8080/cart/item/${cartItemId}`, { headers });
+  await axios.delete(`https://demo-deployment-ervl.onrender.com/cart/item/${cartItemId}`, { headers });
       await fetchCart();
     } catch (err) {
       console.error("Failed to remove from cart", err);
@@ -62,7 +62,7 @@ export const CartProvider = ({ children }) => {
       if (!token || isAdmin) return;
 
       const headers = { Authorization: `Bearer ${token}` };
-      await axios.put(`http://localhost:8080/cart/item/${cartItemId}?qty=${qty}`, null, { headers });
+  await axios.put(`https://demo-deployment-ervl.onrender.com/cart/item/${cartItemId}?qty=${qty}`, null, { headers });
       await fetchCart();
     } catch (err) {
       console.error("Failed to update qty", err);

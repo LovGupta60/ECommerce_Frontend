@@ -26,7 +26,7 @@ const Payment = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:8080/cart/checkout", {
+  const res = await fetch("https://demo-deployment-ervl.onrender.com/cart/checkout", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

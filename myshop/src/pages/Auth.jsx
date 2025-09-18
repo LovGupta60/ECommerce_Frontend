@@ -18,8 +18,8 @@ const Auth = () => {
       if (isLogin) {
         // LOGIN
         const endpoint = isAdmin
-          ? "http://localhost:8080/auth/admin/login"
-          : "http://localhost:8080/auth/login";
+          ? "https://demo-deployment-ervl.onrender.com/auth/admin/login"
+          : "https://demo-deployment-ervl.onrender.com/auth/login";
 
         const body = isAdmin
           ? { username: emailOrUsername, password }
@@ -53,7 +53,7 @@ const Auth = () => {
         }
       } else {
         // REGISTER
-        const endpoint = "http://localhost:8080/auth/signup";
+  const endpoint = "https://demo-deployment-ervl.onrender.com/auth/signup";
         const body = { name, email: emailOrUsername, password };
 
         const res = await fetch(endpoint, {

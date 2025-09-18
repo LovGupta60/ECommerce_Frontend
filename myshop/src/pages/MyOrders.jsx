@@ -11,7 +11,7 @@ const MyOrders = () => {
     const fetchOrders = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:8080/orders", {
+  const res = await fetch("https://demo-deployment-ervl.onrender.com/orders", {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) throw new Error("Failed to load orders");
@@ -34,7 +34,7 @@ const MyOrders = () => {
     try {
       setCancelling((s) => ({ ...s, [id]: true }));
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:8080/orders/${id}/cancel`, {
+  const res = await fetch(`https://demo-deployment-ervl.onrender.com/orders/${id}/cancel`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -57,7 +57,7 @@ const MyOrders = () => {
     try {
       const token = localStorage.getItem("token");
       const { address, phoneNumber } = updates[id];
-      const res = await fetch(`http://localhost:8080/orders/${id}/update`, {
+  const res = await fetch(`https://demo-deployment-ervl.onrender.com/orders/${id}/update`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

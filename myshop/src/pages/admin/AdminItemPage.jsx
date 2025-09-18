@@ -24,7 +24,7 @@ export default function AdminItemPage() {
     if (!id || !token) return;
 
     setLoading(true);
-    fetch(`http://localhost:8080/admin/items/get/${id}`, {
+  fetch(`https://demo-deployment-ervl.onrender.com/admin/items/get/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(async (res) => {
@@ -81,8 +81,8 @@ export default function AdminItemPage() {
 
       const itemRes = await fetch(
         id
-          ? `http://localhost:8080/admin/items/${id}`
-          : "http://localhost:8080/admin/items",
+          ? `https://demo-deployment-ervl.onrender.com/admin/items/${id}`
+          : "https://demo-deployment-ervl.onrender.com/admin/items",
         {
           method: id ? "PUT" : "POST",
           headers: {
@@ -105,7 +105,7 @@ export default function AdminItemPage() {
         data.append("file", formData.image);
 
         const imgRes = await fetch(
-          `http://localhost:8080/admin/items/${savedItem.id}/image`,
+          `https://demo-deployment-ervl.onrender.com/admin/items/${savedItem.id}/image`,
           {
             method: "POST",
             headers: { Authorization: `Bearer ${token}` },
@@ -137,7 +137,7 @@ export default function AdminItemPage() {
 
       {formData.imagePath && (
         <img
-          src={`http://localhost:8080${formData.imagePath}`}
+          src={`https://demo-deployment-ervl.onrender.com${formData.imagePath}`}
           alt="Preview"
           className="w-full h-40 object-cover mb-2 rounded"
         />

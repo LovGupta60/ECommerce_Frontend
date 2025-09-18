@@ -32,11 +32,11 @@ export default function Items() {
   const fetchItems = async () => {
     setLoading(true);
     try {
-      let url = `http://localhost:8080/items/public`;
+  let url = `https://demo-deployment-ervl.onrender.com/items/public`;
       let headers = {};
 
       if (isAdmin) {
-        url = `http://localhost:8080/admin/items/getall`;
+  url = `https://demo-deployment-ervl.onrender.com/admin/items/getall`;
         headers = { Authorization: `Bearer ${token}` };
       }
 
@@ -97,7 +97,7 @@ export default function Items() {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this item?")) return;
     try {
-      const res = await fetch(`http://localhost:8080/admin/items/${id}`, {
+  const res = await fetch(`https://demo-deployment-ervl.onrender.com/admin/items/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -145,7 +145,7 @@ export default function Items() {
           <div key={p.id} className="border rounded-lg p-4 bg-white shadow-md relative">
             {p.imagePath && (
               <img
-                src={`http://localhost:8080${encodeURI(p.imagePath)}`}
+                src={`https://demo-deployment-ervl.onrender.com${encodeURI(p.imagePath)}`}
                 alt={p.name}
                 className="w-full h-52 object-contain mb-2 rounded bg-gray-100"
               />

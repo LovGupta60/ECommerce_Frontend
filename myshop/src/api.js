@@ -1,4 +1,7 @@
-const API_BASE = "http://localhost:8080/auth";
+// Base URL for the deployed backend. Use this for constructing API endpoints.
+const API_BASE = "https://demo-deployment-ervl.onrender.com";
+
+export default API_BASE;
 
 export async function loginUser(credentials) {
   const response = await fetch(`${API_BASE}/login`, {
@@ -10,7 +13,7 @@ export async function loginUser(credentials) {
 }
 
 export async function registerUser(userData) {
-  const response = await fetch("http://localhost:8080/auth/signup", {
+  const response = await fetch(`${API_BASE}/signup`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(userData),
@@ -23,7 +26,6 @@ export async function registerUser(userData) {
     return text; // fallback plain string ("Registered")
   }
 }
-
 
 export async function loginAdmin(credentials) {
   const response = await fetch(`${API_BASE}/admin/login`, {
