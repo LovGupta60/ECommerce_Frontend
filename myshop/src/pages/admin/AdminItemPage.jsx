@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getItem, saveItem, uploadItemImage } from "../api"; // ✅ centralized API
+// ✅ Fixed import path
+import { getItem, saveItem, uploadItemImage } from "../../api";
 
 export default function AdminItemPage() {
   const { id } = useParams(); // undefined → create, defined → edit
