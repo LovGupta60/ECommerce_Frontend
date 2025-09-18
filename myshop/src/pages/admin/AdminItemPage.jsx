@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { getItem, saveItem, uploadItemImage } from "../api"; // ✅ centralized API
 
 export default function AdminItemPage() {
   const { id } = useParams(); // undefined → create, defined → edit
@@ -20,17 +21,12 @@ export default function AdminItemPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // 🔹 Fetch existing item if editing
   useEffect(() => {
     if (!id || !token) return;
 
     setLoading(true);
-    fetch(`https://demo-deployment-ervl.onrender.com/admin/items/get/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then(async (res) => {
-        if (!res.ok) throw new Error("Failed to fetch item");
-        return res.json();
-      })
+    getItem(id, token)
       .then((data) => {
         setFormData({
           name: data.name || "",
@@ -48,6 +44,7 @@ export default function AdminItemPage() {
       .finally(() => setLoading(false));
   }, [id, token]);
 
+  // 🔹 Handle form inputs
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (files) {
@@ -57,6 +54,7 @@ export default function AdminItemPage() {
     }
   };
 
+  // 🔹 Handle submit (create or update)
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -79,47 +77,15 @@ export default function AdminItemPage() {
         stockQty: formData.stockQty,
       };
 
-      const itemRes = await fetch(
-        id
-          ? `https://demo-deployment-ervl.onrender.com/admin/items/${id}`
-          : "https://demo-deployment-ervl.onrender.com/admin/items",
-        {
-          method: id ? "PUT" : "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(itemPayload),
-        }
-      );
+      // ✅ saveItem from api.js
+      const savedItem = await saveItem(id, itemPayload, token);
 
-      if (!itemRes.ok) {
-        const msg = await itemRes.text();
-        throw new Error(msg || "Failed to save item");
-      }
-
-      const savedItem = await itemRes.json();
-
+      // ✅ If image uploaded → upload to backend
       if (formData.image) {
-        const data = new FormData();
-        data.append("file", formData.image);
-
-        const imgRes = await fetch(
-          `https://demo-deployment-ervl.onrender.com/admin/items/${savedItem.id}/image`,
-          {
-            method: "POST",
-            headers: { Authorization: `Bearer ${token}` },
-            body: data,
-          }
-        );
-
-        if (!imgRes.ok) {
-          const msg = await imgRes.text();
-          throw new Error(msg || "Failed to upload image");
-        }
+        await uploadItemImage(savedItem.id, formData.image, token);
       }
 
-      navigate("/items");
+      navigate("/items"); // go back to items page
     } catch (err) {
       setError(err.message);
     } finally {
@@ -137,7 +103,9 @@ export default function AdminItemPage() {
 
       {formData.imagePath && (
         <img
-          src={`https://demo-deployment-ervl.onrender.com${formData.imagePath}`}
+          src={`${import.meta.env.VITE_API_URL || "http://localhost:8080"}${
+            formData.imagePath
+          }`}
           alt="Preview"
           className="w-full h-40 object-cover mb-2 rounded"
         />
