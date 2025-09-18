@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import CategoryTabs from "../components/CategoryTabs";
 import { useCart } from "../context/CartContext";
+import { getAllItems, deleteItem } from "../api"; // import from your api.js
 
 export default function Items() {
   const { addToCart } = useCart();
@@ -15,7 +16,7 @@ export default function Items() {
 
   const token = localStorage.getItem("token");
 
-  // Check admin
+  // Check if user is admin
   let isAdmin = false;
   try {
     if (token) {
@@ -33,18 +34,14 @@ export default function Items() {
   const fetchItems = async () => {
     setLoading(true);
     try {
-      let url = `https://demo-deployment-ervl.onrender.com/items/public`;
-      let headers = {};
-
+      let data = [];
       if (isAdmin) {
-        url = `https://demo-deployment-ervl.onrender.com/admin/items/getall`;
-        headers = { Authorization: `Bearer ${token}` };
+        data = await getAllItems(token); // admin API from your api.js
+      } else {
+        const res = await fetch("https://demo-deployment-ervl.onrender.com/items/public");
+        if (!res.ok) throw new Error("Failed to fetch items");
+        data = await res.json();
       }
-
-      const res = await fetch(url, { headers });
-      if (!res.ok) throw new Error("Failed to fetch items");
-
-      const data = await res.json();
       setProducts(data.content || data);
       setError(null);
     } catch (err) {
@@ -61,11 +58,8 @@ export default function Items() {
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearch(value);
-
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      setSearch(value);
-    }, 300);
+    debounceRef.current = setTimeout(() => setSearch(value), 300);
   };
 
   const categories = useMemo(() => {
@@ -80,35 +74,26 @@ export default function Items() {
 
   const filtered = products.filter((p) => {
     const matchCategory =
-      active === "All" ||
-      (p.type || "Other").trim().toLowerCase() === active.toLowerCase();
-
+      active === "All" || (p.type || "Other").trim().toLowerCase() === active.toLowerCase();
     const matchSearch =
       search.trim() === "" ||
       p.name.toLowerCase().includes(search.toLowerCase()) ||
       (p.brand && p.brand.toLowerCase().includes(search.toLowerCase()));
-
     return matchCategory && matchSearch;
   });
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this item?")) return;
     try {
-      const res = await fetch(`https://demo-deployment-ervl.onrender.com/admin/items/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error("Failed to delete item");
+      await deleteItem(id, token); // deleteItem from your api.js
       fetchItems();
     } catch (err) {
       alert(err.message);
     }
   };
 
-  if (loading)
-    return <div className="p-10 text-center animate-pulse">Loading items...</div>;
-  if (error)
-    return <div className="p-10 text-center text-red-600">{error}</div>;
+  if (loading) return <div className="p-10 text-center animate-pulse">Loading items...</div>;
+  if (error) return <div className="p-10 text-center text-red-600">{error}</div>;
 
   return (
     <div className="p-6">
@@ -173,7 +158,7 @@ export default function Items() {
                   <button
                     onClick={async () => {
                       const ok = await addToCart(p.id, 1);
-                      if (!ok) alert('Failed to add item to cart. Please login and try again.');
+                      if (!ok) alert("Failed to add item to cart. Please login and try again.");
                     }}
                     className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-sm"
                   >
