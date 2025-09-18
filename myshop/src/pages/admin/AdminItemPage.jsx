@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-// ✅ Fixed import path
-import { getItem, saveItem, uploadItemImage } from "../../api";
+import { getItem, saveItem, uploadItemImage } from "../../api"; // your api.js
 
 export default function AdminItemPage() {
   const { id } = useParams(); // undefined → create, defined → edit
@@ -19,16 +18,17 @@ export default function AdminItemPage() {
     image: null,
     imagePath: "",
   });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // 🔹 Fetch existing item if editing
+  // Fetch item if editing
   useEffect(() => {
     if (!id || !token) return;
 
     setLoading(true);
     getItem(id, token)
-      .then((data) => {
+      .then((data) =>
         setFormData({
           name: data.name || "",
           brand: data.brand || "",
@@ -39,13 +39,13 @@ export default function AdminItemPage() {
           stockQty: data.stockQty || "",
           image: null,
           imagePath: data.imagePath || "",
-        });
-      })
+        })
+      )
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [id, token]);
 
-  // 🔹 Handle form inputs
+  // Handle input change
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (files) {
@@ -55,7 +55,7 @@ export default function AdminItemPage() {
     }
   };
 
-  // 🔹 Handle submit (create or update)
+  // Handle submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -68,7 +68,7 @@ export default function AdminItemPage() {
     }
 
     try {
-      const itemPayload = {
+      const payload = {
         name: formData.name,
         brand: formData.brand,
         type: formData.type,
@@ -78,15 +78,13 @@ export default function AdminItemPage() {
         stockQty: formData.stockQty,
       };
 
-      // ✅ saveItem from api.js
-      const savedItem = await saveItem(id, itemPayload, token);
+      const savedItem = await saveItem(id, payload, token);
 
-      // ✅ If image uploaded → upload to backend
       if (formData.image) {
         await uploadItemImage(savedItem.id, formData.image, token);
       }
 
-      navigate("/items"); // go back to items page
+      navigate("/items"); // go back to items list
     } catch (err) {
       setError(err.message);
     } finally {
@@ -104,9 +102,7 @@ export default function AdminItemPage() {
 
       {formData.imagePath && (
         <img
-          src={`${import.meta.env.VITE_API_URL || "http://localhost:8080"}${
-            formData.imagePath
-          }`}
+          src={`https://demo-deployment-ervl.onrender.com${formData.imagePath}`}
           alt="Preview"
           className="w-full h-40 object-cover mb-2 rounded"
         />
@@ -133,7 +129,7 @@ export default function AdminItemPage() {
         <input
           type="text"
           name="type"
-          placeholder="Type (e.g. Electronics, Kitchen)"
+          placeholder="Type"
           value={formData.type}
           onChange={handleChange}
           className="border p-2 w-full rounded"
