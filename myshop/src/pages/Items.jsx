@@ -1,196 +1,91 @@
-import React, { useEffect, useMemo, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import CategoryTabs from "../components/CategoryTabs";
+import { useEffect, useState } from "react";
+import Slider from "react-slick";
+import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 
-export default function Items() {
+function getRandomItems(arr, count) {
+  if (!Array.isArray(arr)) return [];
+  return arr.sort(() => 0.5 - Math.random()).slice(0, count);
+}
+
+export default function FeaturedItemsSlider() {
+  const [featured, setFeatured] = useState([]);
   const { addToCart } = useCart();
   const navigate = useNavigate();
-  const [products, setProducts] = useState([]);
-  const [active, setActive] = useState("All");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [search, setSearch] = useState("");
-  const debounceRef = useRef(null);
-
-  const token = localStorage.getItem("token");
-
-  // Check admin
-  let isAdmin = false;
-  try {
-    if (token) {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      if (Array.isArray(payload.roles)) {
-        isAdmin = payload.roles.includes("ROLE_ADMIN");
-      } else if (typeof payload.roles === "string") {
-        isAdmin = payload.roles.toUpperCase() === "ROLE_ADMIN";
-      }
-    }
-  } catch (err) {
-    console.error("Invalid token", err);
-  }
-
-  const fetchItems = async () => {
-    setLoading(true);
-    try {
-      let url = `https://demo-deployment-ervl.onrender.com/items/public`;
-      let headers = {};
-
-      if (isAdmin) {
-        url = `https://demo-deployment-ervl.onrender.com/admin/items/getall`;
-        headers = { Authorization: `Bearer ${token}` };
-      }
-
-      const res = await fetch(url, { headers });
-      if (!res.ok) throw new Error("Failed to fetch items");
-
-      const data = await res.json();
-      setProducts(data.content || data);
-      setError(null);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
+    async function fetchItems() {
+      try {
+        const res = await fetch("https://demo-deployment-ervl.onrender.com/items/public");
+        const data = await res.json();
+
+        const items = Array.isArray(data) ? data : data.content || [];
+        const randomItems = getRandomItems(items, 6);
+        setFeatured(randomItems);
+
+        console.log("Slider items:", items);
+      } catch (err) {
+        console.error("Error fetching items:", err);
+      }
+    }
     fetchItems();
   }, []);
 
-  const handleSearchChange = (e) => {
-    const value = e.target.value;
-    setSearch(value);
-
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      setSearch(value);
-    }, 300);
+  const settings = {
+    dots: true,
+    infinite: true,
+    slidesToShow: 3,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 2000,
+    responsive: [
+      { breakpoint: 1024, settings: { slidesToShow: 2 } },
+      { breakpoint: 640, settings: { slidesToShow: 1 } },
+    ],
   };
-
-  const categories = useMemo(() => {
-    const set = new Set(
-      products
-        .map((p) => (p.type || "Other").trim())
-        .map((type) => type.toLowerCase())
-        .filter((type) => type !== "all")
-    );
-    return Array.from(set).map((t) => t.charAt(0).toUpperCase() + t.slice(1));
-  }, [products]);
-
-  const filtered = products.filter((p) => {
-    const matchCategory =
-      active === "All" ||
-      (p.type || "Other").trim().toLowerCase() === active.toLowerCase();
-
-    const matchSearch =
-      search.trim() === "" ||
-      p.name.toLowerCase().includes(search.toLowerCase()) ||
-      (p.brand && p.brand.toLowerCase().includes(search.toLowerCase()));
-
-    return matchCategory && matchSearch;
-  });
-
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this item?")) return;
-    try {
-      const res = await fetch(`https://demo-deployment-ervl.onrender.com/admin/items/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error("Failed to delete item");
-      fetchItems();
-    } catch (err) {
-      alert(err.message);
-    }
-  };
-
-  if (loading)
-    return <div className="p-10 text-center animate-pulse">Loading items...</div>;
-  if (error)
-    return <div className="p-10 text-center text-red-600">{error}</div>;
 
   return (
     <div className="p-6">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">Items</h2>
-        {isAdmin && (
-          <button
-            onClick={() => navigate("/admin/items")}
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
-          >
-            + Create Item
-          </button>
-        )}
-      </div>
-
-      <div className="mb-4">
-        <input
-          type="text"
-          value={search}
-          onChange={handleSearchChange}
-          placeholder="Search by product name..."
-          className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
-
-      <CategoryTabs categories={categories} active={active} onChange={setActive} />
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-4">
-        {filtered.map((p) => (
-          <div key={p.id} className="border rounded-lg p-4 bg-white shadow-md relative">
-            {p.imagePath && (
-              <img
-                src={`https://demo-deployment-ervl.onrender.com${encodeURI(p.imagePath)}`}
-                alt={p.name}
-                className="w-full h-52 object-contain mb-2 rounded bg-gray-100"
-              />
-            )}
-            <h3 className="font-semibold">{p.name}</h3>
-            <p className="text-sm text-gray-600">{p.brand} - {p.type}</p>
-            <p className="text-sm">{p.description}</p>
-            <p className="mt-1 font-medium">₹{p.price}</p>
-            <p className="text-xs text-gray-500">Stock: {p.stockQty}</p>
-
-            <div className="flex gap-2 mt-2">
-              {isAdmin ? (
-                <>
-                  <button
-                    onClick={() => navigate(`/admin/items/edit/${p.id}`)}
-                    className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-sm"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(p.id)}
-                    className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 text-sm"
-                  >
-                    Delete
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    onClick={async () => {
-                      const ok = await addToCart(p.id, 1);
-                      if (!ok) alert('Failed to add item to cart. Please login and try again.');
-                    }}
-                    className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-sm"
-                  >
-                    Add to Cart
-                  </button>
-                  <button
-                    onClick={() => navigate(`/items/${p.id}`)}
-                    className="bg-yellow-500 text-blue-800 px-2 py-1 rounded hover:bg-yellow-400 text-sm"
-                  >
-                    See More
-                  </button>
-                </>
+      <h2 className="text-xl font-bold mb-4">Featured Products</h2>
+      <Slider {...settings}>
+        {featured.map((item) => (
+          <div key={item.id} className="p-2">
+            <div className="border rounded-lg p-4 shadow hover:shadow-lg transition bg-white">
+              {item.imagePath && (
+                <img
+                  src={`https://demo-deployment-ervl.onrender.com${encodeURI(item.imagePath)}`}
+                  alt={item.name}
+                  className="h-40 w-full object-contain mb-2 bg-gray-100 rounded"
+                />
               )}
+              <h3 className="font-semibold">{item.name}</h3>
+              <p className="text-sm text-gray-500">
+                {item.brand} - {item.type}
+              </p>
+              <p className="text-sm">{item.description}</p>
+              <p className="font-medium mt-1">₹{item.price}</p>
+
+              <div className="flex gap-2 mt-3">
+                <button
+                  onClick={async () => {
+                    const ok = await addToCart(item.id, 1);
+                    if (!ok) alert("Failed to add item to cart. Please login and try again.");
+                  }}
+                  className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm"
+                >
+                  Add to Cart
+                </button>
+                <button
+                  onClick={() => navigate(`/items/${item.id}`)}
+                  className="bg-yellow-500 text-blue-800 px-3 py-1 rounded hover:bg-yellow-400 text-sm"
+                >
+                  See More
+                </button>
+              </div>
             </div>
           </div>
         ))}
-      </div>
+      </Slider>
     </div>
   );
 }
