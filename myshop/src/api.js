@@ -1,4 +1,3 @@
-// adminApi.js
 const API_BASE = "https://demo-deployment-ervl.onrender.com";
 
 /* ------------------------ AUTH ------------------------ */
@@ -48,7 +47,7 @@ export async function uploadItemImage(itemId, file, token) {
 
   const res = await fetch(`${API_BASE}/admin/items/${itemId}/image`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
+    headers: { Authorization: `Bearer ${token}` }, // No Content-Type
     body: formData,
   });
 
@@ -76,7 +75,7 @@ export async function getItem(id, token) {
 
 // Get all items
 export async function getAllItems(token) {
-  const res = await fetch(`${API_BASE}/admin/items`, {
+  const res = await fetch(`${API_BASE}/admin/items/getall`, { // fixed endpoint
     headers: { Authorization: `Bearer ${token}` },
   });
 
@@ -100,5 +99,5 @@ export async function deleteItem(id, token) {
     throw new Error(msg || "Failed to delete item");
   }
 
-  return res.json();
+  return true; // DELETE returns 204, no JSON
 }

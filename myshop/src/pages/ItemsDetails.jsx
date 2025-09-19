@@ -36,6 +36,7 @@ export default function ItemDetails() {
         const url = isAdmin
           ? `https://demo-deployment-ervl.onrender.com/admin/items/get/${id}`
           : `https://demo-deployment-ervl.onrender.com/items/public/${id}`;
+
         const headers = isAdmin && token ? { Authorization: `Bearer ${token}` } : {};
 
         const res = await fetch(url, { headers });
@@ -61,13 +62,18 @@ export default function ItemDetails() {
 
   if (!item) return <div className="p-10 text-center">Item not found.</div>;
 
+  // Determine image URL (Cloudinary or local fallback)
+  const imageUrl = item.imagePath?.startsWith("http")
+    ? item.imagePath
+    : `https://demo-deployment-ervl.onrender.com${item.imagePath}`;
+
   return (
-  <div className="w-full max-w-4xl mx-auto p-4 sm:p-6 bg-white rounded-lg shadow-lg">
+    <div className="w-full max-w-4xl mx-auto p-4 sm:p-6 bg-white rounded-lg shadow-lg">
       {/* Image */}
       {item.imagePath && (
         <Zoom>
           <img
-            src={`https://demo-deployment-ervl.onrender.com${encodeURI(item.imagePath)}`}
+            src={imageUrl}
             alt={item.name}
             className="w-full max-h-[500px] object-contain rounded-lg shadow-md mb-6"
           />

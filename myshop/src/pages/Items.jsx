@@ -14,37 +14,26 @@ export default function Items() {
   const debounceRef = useRef(null);
 
   const token = localStorage.getItem("token");
-
-  // Check admin
   let isAdmin = false;
+
   try {
     if (token) {
       const payload = JSON.parse(atob(token.split(".")[1]));
-      if (Array.isArray(payload.roles)) {
-        isAdmin = payload.roles.includes("ROLE_ADMIN");
-      } else if (typeof payload.roles === "string") {
-        isAdmin = payload.roles.toUpperCase() === "ROLE_ADMIN";
-      }
+      isAdmin = Array.isArray(payload.roles) ? payload.roles.includes("ROLE_ADMIN") : payload.roles.toUpperCase() === "ROLE_ADMIN";
     }
   } catch (err) {
     console.error("Invalid token", err);
   }
 
-  // Fetch items
   const fetchItems = async () => {
     setLoading(true);
     try {
-      let url = `https://demo-deployment-ervl.onrender.com/items/public`;
-      let headers = {};
-
-      if (isAdmin) {
-        url = `https://demo-deployment-ervl.onrender.com/admin/items/getall`;
-        headers = { Authorization: `Bearer ${token}` };
-      }
-
+      let url = isAdmin
+        ? `https://demo-deployment-ervl.onrender.com/admin/items/getall`
+        : `https://demo-deployment-ervl.onrender.com/items/public`;
+      let headers = isAdmin ? { Authorization: `Bearer ${token}` } : {};
       const res = await fetch(url, { headers });
       if (!res.ok) throw new Error("Failed to fetch items");
-
       const data = await res.json();
       setProducts(data.content || data);
       setError(null);
@@ -59,38 +48,23 @@ export default function Items() {
     fetchItems();
   }, []);
 
-  // Search debounce
   const handleSearchChange = (e) => {
     const value = e.target.value;
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      setSearch(value);
-    }, 300);
+    debounceRef.current = setTimeout(() => setSearch(value), 300);
   };
 
-  // Categories
   const categories = useMemo(() => {
-    const set = new Set(
-      products
-        .map((p) => (p.type || "Other").trim())
-        .map((type) => type.toLowerCase())
-        .filter((type) => type !== "all")
-    );
-    return Array.from(set).map((t) => t.charAt(0).toUpperCase() + t.slice(1));
+    const set = new Set(products.map(p => (p.type || "Other").trim().toLowerCase()).filter(t => t !== "all"));
+    return Array.from(set).map(t => t.charAt(0).toUpperCase() + t.slice(1));
   }, [products]);
 
-  // Filtered items
-  const filtered = products.filter((p) => {
-    const matchCategory =
-      active === "All" || (p.type || "Other").trim().toLowerCase() === active.toLowerCase();
-    const matchSearch =
-      search.trim() === "" ||
-      p.name.toLowerCase().includes(search.toLowerCase()) ||
-      (p.brand && p.brand.toLowerCase().includes(search.toLowerCase()));
+  const filtered = products.filter(p => {
+    const matchCategory = active === "All" || (p.type || "Other").trim().toLowerCase() === active.toLowerCase();
+    const matchSearch = search.trim() === "" || p.name.toLowerCase().includes(search.toLowerCase()) || (p.brand && p.brand.toLowerCase().includes(search.toLowerCase()));
     return matchCategory && matchSearch;
   });
 
-  // Delete item (admin)
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this item?")) return;
     try {
@@ -105,13 +79,10 @@ export default function Items() {
     }
   };
 
-  // Upload image (admin)
   const handleUploadImage = async (id, file) => {
     if (!file) return;
-
     const formData = new FormData();
     formData.append("file", file);
-
     try {
       const res = await fetch(`https://demo-deployment-ervl.onrender.com/admin/items/${id}/image`, {
         method: "POST",
@@ -142,24 +113,22 @@ export default function Items() {
         )}
       </div>
 
-      <div className="mb-4">
-        <input
-          type="text"
-          value={search}
-          onChange={handleSearchChange}
-          placeholder="Search by product name..."
-          className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
+      <input
+        type="text"
+        value={search}
+        onChange={handleSearchChange}
+        placeholder="Search by product name..."
+        className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+      />
 
       <CategoryTabs categories={categories} active={active} onChange={setActive} />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-4">
-        {filtered.map((p) => (
+        {filtered.map(p => (
           <div key={p.id} className="border rounded-lg p-4 bg-white shadow-md relative">
             {p.imagePath && (
               <img
-                src={p.imagePath} // Cloudinary URL
+                src={p.imagePath.startsWith("http") ? p.imagePath : `https://demo-deployment-ervl.onrender.com${p.imagePath}`}
                 alt={p.name}
                 className="w-full h-52 object-contain mb-2 rounded bg-gray-100"
               />
@@ -173,41 +142,14 @@ export default function Items() {
             <div className="flex gap-2 mt-2">
               {isAdmin ? (
                 <>
-                  <button
-                    onClick={() => navigate(`/admin/items/edit/${p.id}`)}
-                    className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-sm"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(p.id)}
-                    className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 text-sm"
-                  >
-                    Delete
-                  </button>
-                  <input
-                    type="file"
-                    onChange={(e) => handleUploadImage(p.id, e.target.files[0])}
-                    className="mt-2 text-sm"
-                  />
+                  <button onClick={() => navigate(`/admin/items/edit/${p.id}`)} className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-sm">Edit</button>
+                  <button onClick={() => handleDelete(p.id)} className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 text-sm">Delete</button>
+                  <input type="file" onChange={(e) => handleUploadImage(p.id, e.target.files[0])} className="mt-2 text-sm" />
                 </>
               ) : (
                 <>
-                  <button
-                    onClick={async () => {
-                      const ok = await addToCart(p.id, 1);
-                      if (!ok) alert("Failed to add item to cart. Please login and try again.");
-                    }}
-                    className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-sm"
-                  >
-                    Add to Cart
-                  </button>
-                  <button
-                    onClick={() => navigate(`/items/${p.id}`)}
-                    className="bg-yellow-500 text-blue-800 px-2 py-1 rounded hover:bg-yellow-400 text-sm"
-                  >
-                    See More
-                  </button>
+                  <button onClick={() => addToCart(p)} className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-sm">Add to Cart</button>
+                  <button onClick={() => navigate(`/items/${p.id}`)} className="bg-yellow-500 text-blue-800 px-2 py-1 rounded hover:bg-yellow-400 text-sm">See More</button>
                 </>
               )}
             </div>
