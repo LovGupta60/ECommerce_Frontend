@@ -3,6 +3,7 @@ import Slider from "react-slick";
 import { Link } from "react-router-dom";
 
 function getRandomItems(arr, count) {
+  if (!Array.isArray(arr)) return [];
   return arr.sort(() => 0.5 - Math.random()).slice(0, count);
 }
 
@@ -12,10 +13,14 @@ export default function FeaturedItemsSlider() {
   useEffect(() => {
     async function fetchItems() {
       try {
-        const res = await fetch("https://demo-deployment-ervl.onrender.com/api/items");
+        const res = await fetch("https://demo-deployment-ervl.onrender.com/items/public");
         const data = await res.json();
-        const randomItems = getRandomItems(data, 6); // pick 6 random
+
+        const items = Array.isArray(data) ? data : data.content || [];
+        const randomItems = getRandomItems(items, 6);
         setFeatured(randomItems);
+
+        console.log("Slider items:", items);
       } catch (err) {
         console.error("Error fetching items:", err);
       }
@@ -44,13 +49,19 @@ export default function FeaturedItemsSlider() {
           <div key={item.id} className="p-2">
             <Link to={`/items/${item.id}`}>
               <div className="border rounded-lg p-4 shadow hover:shadow-lg transition bg-white cursor-pointer">
-                <img
-                  src={item.photo}
-                  alt={item.name}
-                  className="h-40 w-full object-contain mb-2"
-                />
+                {item.imagePath && (
+                  <img
+                    src={`https://demo-deployment-ervl.onrender.com${encodeURI(item.imagePath)}`}
+                    alt={item.name}
+                    className="h-40 w-full object-contain mb-2 bg-gray-100 rounded"
+                  />
+                )}
                 <h3 className="font-semibold">{item.name}</h3>
-                <p className="text-sm text-gray-500">{item.description}</p>
+                <p className="text-sm text-gray-500">
+                  {item.brand} - {item.type}
+                </p>
+                <p className="text-sm">{item.description}</p>
+                <p className="font-medium mt-1">₹{item.price}</p>
               </div>
             </Link>
           </div>
