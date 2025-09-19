@@ -51,13 +51,13 @@ export default function FeaturedItemsSlider() {
   const settings = {
     dots: true,
     infinite: true,
-    slidesToShow: 3, // desktop
+    slidesToShow: 1, // ✅ always show 1 at a time (desktop & mobile)
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 2500,
     nextArrow: <NextArrow />,
     prevArrow: <PrevArrow />,
-    appendDots: dots => (
+    appendDots: (dots) => (
       <div style={{ bottom: "-30px" }}>
         <ul className="flex justify-center gap-2">{dots}</ul>
       </div>
@@ -65,22 +65,6 @@ export default function FeaturedItemsSlider() {
     customPaging: () => (
       <div className="w-3 h-3 bg-gray-400 rounded-full hover:bg-gray-600" />
     ),
-    responsive: [
-      {
-        breakpoint: 1024, // tablets
-        settings: {
-          slidesToShow: 2,
-        },
-      },
-      {
-        breakpoint: 768, // mobile
-        settings: {
-          slidesToShow: 1,
-          centerMode: false,
-          centerPadding: "0px",
-        },
-      },
-    ],
   };
 
   return (
@@ -101,18 +85,23 @@ export default function FeaturedItemsSlider() {
                   className="h-32 md:h-40 w-full object-contain mb-2 bg-gray-100 rounded"
                 />
               )}
-              <h3 className="font-semibold text-sm md:text-base text-center truncate w-full">{item.name}</h3>
+              <h3 className="font-semibold text-sm md:text-base text-center truncate w-full">
+                {item.name}
+              </h3>
               <p className="text-xs md:text-sm text-gray-500 text-center truncate w-full">
                 {item.brand} - {item.type}
               </p>
-              <p className="text-xs md:text-sm text-center truncate w-full">{item.description}</p>
+              <p className="text-xs md:text-sm text-center truncate w-full">
+                {item.description}
+              </p>
               <p className="font-medium mt-1 text-center">₹{item.price}</p>
 
               <div className="flex flex-col sm:flex-row gap-2 mt-3 w-full">
                 <button
                   onClick={async () => {
                     const ok = await addToCart(item.id, 1);
-                    if (!ok) alert("Failed to add item to cart. Please login and try again.");
+                    if (!ok)
+                      alert("Failed to add item to cart. Please login and try again.");
                   }}
                   className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm flex-1"
                 >
