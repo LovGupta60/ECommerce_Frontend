@@ -83,12 +83,10 @@ export default function Items() {
   const filtered = products.filter((p) => {
     const matchCategory =
       active === "All" || (p.type || "Other").trim().toLowerCase() === active.toLowerCase();
-
     const matchSearch =
       search.trim() === "" ||
       p.name.toLowerCase().includes(search.toLowerCase()) ||
       (p.brand && p.brand.toLowerCase().includes(search.toLowerCase()));
-
     return matchCategory && matchSearch;
   });
 
@@ -121,7 +119,7 @@ export default function Items() {
         body: formData,
       });
       if (!res.ok) throw new Error("Image upload failed");
-      fetchItems(); // Refresh list to show updated image
+      fetchItems();
     } catch (err) {
       alert(err.message);
     }
