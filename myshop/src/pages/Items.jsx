@@ -30,6 +30,7 @@ export default function Items() {
     console.error("Invalid token", err);
   }
 
+  // Fetch items
   const fetchItems = async () => {
     setLoading(true);
     try {
@@ -58,16 +59,16 @@ export default function Items() {
     fetchItems();
   }, []);
 
+  // Search debounce
   const handleSearchChange = (e) => {
     const value = e.target.value;
-    setSearch(value);
-
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       setSearch(value);
     }, 300);
   };
 
+  // Categories
   const categories = useMemo(() => {
     const set = new Set(
       products
@@ -78,10 +79,10 @@ export default function Items() {
     return Array.from(set).map((t) => t.charAt(0).toUpperCase() + t.slice(1));
   }, [products]);
 
+  // Filtered items
   const filtered = products.filter((p) => {
     const matchCategory =
-      active === "All" ||
-      (p.type || "Other").trim().toLowerCase() === active.toLowerCase();
+      active === "All" || (p.type || "Other").trim().toLowerCase() === active.toLowerCase();
 
     const matchSearch =
       search.trim() === "" ||
@@ -91,6 +92,7 @@ export default function Items() {
     return matchCategory && matchSearch;
   });
 
+  // Delete item (admin)
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this item?")) return;
     try {
@@ -105,10 +107,28 @@ export default function Items() {
     }
   };
 
-  if (loading)
-    return <div className="p-10 text-center animate-pulse">Loading items...</div>;
-  if (error)
-    return <div className="p-10 text-center text-red-600">{error}</div>;
+  // Upload image (admin)
+  const handleUploadImage = async (id, file) => {
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch(`https://demo-deployment-ervl.onrender.com/admin/items/${id}/image`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      if (!res.ok) throw new Error("Image upload failed");
+      fetchItems(); // Refresh list to show updated image
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  if (loading) return <div className="p-10 text-center animate-pulse">Loading items...</div>;
+  if (error) return <div className="p-10 text-center text-red-600">{error}</div>;
 
   return (
     <div className="p-6">
@@ -141,7 +161,7 @@ export default function Items() {
           <div key={p.id} className="border rounded-lg p-4 bg-white shadow-md relative">
             {p.imagePath && (
               <img
-                src={`https://demo-deployment-ervl.onrender.com${encodeURI(p.imagePath)}`}
+                src={p.imagePath} // Cloudinary URL
                 alt={p.name}
                 className="w-full h-52 object-contain mb-2 rounded bg-gray-100"
               />
@@ -167,13 +187,18 @@ export default function Items() {
                   >
                     Delete
                   </button>
+                  <input
+                    type="file"
+                    onChange={(e) => handleUploadImage(p.id, e.target.files[0])}
+                    className="mt-2 text-sm"
+                  />
                 </>
               ) : (
                 <>
                   <button
                     onClick={async () => {
                       const ok = await addToCart(p.id, 1);
-                      if (!ok) alert('Failed to add item to cart. Please login and try again.');
+                      if (!ok) alert("Failed to add item to cart. Please login and try again.");
                     }}
                     className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-sm"
                   >
