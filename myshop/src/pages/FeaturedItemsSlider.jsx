@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Slider from "react-slick";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useCart } from "../context/CartContext";
 
 function getRandomItems(arr, count) {
   if (!Array.isArray(arr)) return [];
@@ -9,6 +10,8 @@ function getRandomItems(arr, count) {
 
 export default function FeaturedItemsSlider() {
   const [featured, setFeatured] = useState([]);
+  const { addToCart } = useCart();
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchItems() {
@@ -47,23 +50,39 @@ export default function FeaturedItemsSlider() {
       <Slider {...settings}>
         {featured.map((item) => (
           <div key={item.id} className="p-2">
-            <Link to={`/items/${item.id}`}>
-              <div className="border rounded-lg p-4 shadow hover:shadow-lg transition bg-white cursor-pointer">
-                {item.imagePath && (
-                  <img
-                    src={`https://demo-deployment-ervl.onrender.com${encodeURI(item.imagePath)}`}
-                    alt={item.name}
-                    className="h-40 w-full object-contain mb-2 bg-gray-100 rounded"
-                  />
-                )}
-                <h3 className="font-semibold">{item.name}</h3>
-                <p className="text-sm text-gray-500">
-                  {item.brand} - {item.type}
-                </p>
-                <p className="text-sm">{item.description}</p>
-                <p className="font-medium mt-1">₹{item.price}</p>
+            <div className="border rounded-lg p-4 shadow hover:shadow-lg transition bg-white">
+              {item.imagePath && (
+                <img
+                  src={`https://demo-deployment-ervl.onrender.com${encodeURI(item.imagePath)}`}
+                  alt={item.name}
+                  className="h-40 w-full object-contain mb-2 bg-gray-100 rounded"
+                />
+              )}
+              <h3 className="font-semibold">{item.name}</h3>
+              <p className="text-sm text-gray-500">
+                {item.brand} - {item.type}
+              </p>
+              <p className="text-sm">{item.description}</p>
+              <p className="font-medium mt-1">₹{item.price}</p>
+
+              <div className="flex gap-2 mt-3">
+                <button
+                  onClick={async () => {
+                    const ok = await addToCart(item.id, 1);
+                    if (!ok) alert("Failed to add item to cart. Please login and try again.");
+                  }}
+                  className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm"
+                >
+                  Add to Cart
+                </button>
+                <button
+                  onClick={() => navigate(`/items/${item.id}`)}
+                  className="bg-yellow-500 text-blue-800 px-3 py-1 rounded hover:bg-yellow-400 text-sm"
+                >
+                  See More
+                </button>
               </div>
-            </Link>
+            </div>
           </div>
         ))}
       </Slider>
