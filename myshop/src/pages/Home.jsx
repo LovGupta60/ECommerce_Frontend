@@ -2,6 +2,8 @@ import React from "react";
 import { Link } from "react-router-dom";
 import BrandSlider from "../components/BrandSlider";
 import BrandMarquee from "../components/BrandMarquee";
+import FeaturedItemsSlider from "./FeaturedItemsSlider";
+
 
 const outlets = [
   {
@@ -38,7 +40,12 @@ const outlets = [
 
 export default function Home() {
   return (
+    
     <div className="px-4 sm:px-6 md:px-12 lg:px-20 py-8 bg-gray-50 space-y-12">
+       <section className="max-w-7xl mx-auto py-8">
+        <FeaturedItemsSlider />
+      </section>
+
       {/* Hero Section */}
   <section className="flex flex-col lg:flex-row items-center gap-8 bg-gradient-to-r from-white to-gray-100 p-6 rounded-lg shadow-lg">
         <div className="text-center lg:text-left max-w-xl">
