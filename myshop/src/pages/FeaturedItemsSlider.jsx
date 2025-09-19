@@ -12,7 +12,7 @@ export default function FeaturedItemsSlider() {
   useEffect(() => {
     async function fetchItems() {
       try {
-        const res = await fetch("https://your-backend-url.com/api/items");
+        const res = await fetch("https://demo-deployment-ervl.onrender.com/api/items");
         const data = await res.json();
         const randomItems = getRandomItems(data, 6); // pick 6 random
         setFeatured(randomItems);
