@@ -3,6 +3,7 @@ import Slider from "react-slick";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 
+// Utility to get random items
 function getRandomItems(arr, count) {
   if (!Array.isArray(arr)) return [];
   return arr.sort(() => 0.5 - Math.random()).slice(0, count);
@@ -30,27 +31,50 @@ export default function FeaturedItemsSlider() {
   const settings = {
     dots: true,
     infinite: true,
-    slidesToShow: 3,
+    slidesToShow: 3, // desktop default
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 2500,
     responsive: [
-      { breakpoint: 1024, settings: { slidesToShow: 2 } },
-      { breakpoint: 768, settings: { slidesToShow: 1, centerMode: true, centerPadding: "40px" } },
-      { breakpoint: 480, settings: { slidesToShow: 1, centerMode: false } },
+      {
+        breakpoint: 1024, // tablets
+        settings: {
+          slidesToShow: 2,
+        },
+      },
+      {
+        breakpoint: 768, // mobile landscape / small tablets
+        settings: {
+          slidesToShow: 1,
+          centerMode: true,
+          centerPadding: "20px",
+        },
+      },
+      {
+        breakpoint: 480, // mobile portrait
+        settings: {
+          slidesToShow: 1,
+          centerMode: false,
+          centerPadding: "0px",
+        },
+      },
     ],
   };
 
   return (
     <div className="p-4 md:p-6">
-      <h2 className="text-xl md:text-2xl font-bold mb-4 text-center">Featured Products</h2>
+      <h2 className="text-xl md:text-2xl font-bold mb-4 text-center">Hot Deals</h2>
       <Slider {...settings}>
         {featured.map((item) => (
           <div key={item.id} className="p-2">
             <div className="border rounded-lg p-3 md:p-4 shadow hover:shadow-lg transition bg-white flex flex-col items-center">
               {item.imagePath && (
                 <img
-                  src={`https://demo-deployment-ervl.onrender.com${encodeURI(item.imagePath)}`}
+                  src={
+                    item.imagePath.startsWith("http")
+                      ? item.imagePath
+                      : `https://res.cloudinary.com/YOUR_CLOUD_NAME/${encodeURIComponent(item.imagePath)}`
+                  }
                   alt={item.name}
                   className="h-32 md:h-40 w-full object-contain mb-2 bg-gray-100 rounded"
                 />
