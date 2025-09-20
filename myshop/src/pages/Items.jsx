@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
+// src/pages/Items.jsx
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import CategoryTabs from "../components/CategoryTabs";
 import { useCart } from "../context/CartContext";
@@ -13,7 +14,7 @@ export default function Items() {
 
   // Search states
   const [searchInput, setSearchInput] = useState(""); // immediate input
-  const [search, setSearch] = useState("");           // debounced value
+  const debounceRef = useRef(null);
 
   const token = localStorage.getItem("token");
   let isAdmin = false;
@@ -29,15 +30,21 @@ export default function Items() {
     console.error("Invalid token", err);
   }
 
-  const fetchItems = async () => {
+  // Fetch items from backend with optional search query
+  const fetchItems = async (query = "") => {
     setLoading(true);
     try {
+      const params = new URLSearchParams();
+      if (query) params.append("q", query);
+
       const url = isAdmin
-        ? `https://demo-deployment-ervl.onrender.com/admin/items/getall`
-        : `https://demo-deployment-ervl.onrender.com/items/public`;
+        ? `https://demo-deployment-ervl.onrender.com/admin/items/getall?${params.toString()}`
+        : `https://demo-deployment-ervl.onrender.com/items/public?${params.toString()}`;
+
       const headers = isAdmin ? { Authorization: `Bearer ${token}` } : {};
       const res = await fetch(url, { headers });
       if (!res.ok) throw new Error("Failed to fetch items");
+
       const data = await res.json();
       setProducts(data.content || data);
       setError(null);
@@ -48,23 +55,25 @@ export default function Items() {
     }
   };
 
+  // Initial load
   useEffect(() => {
     fetchItems();
   }, []);
 
-  // Debounce search for mobile-friendly typing
+  // Debounced search
   useEffect(() => {
-    const handler = setTimeout(() => {
-      setSearch(searchInput);
-    }, 300); // 300ms debounce
+    if (debounceRef.current) clearTimeout(debounceRef.current);
 
-    return () => clearTimeout(handler);
+    debounceRef.current = setTimeout(() => {
+      fetchItems(searchInput);
+    }, 600); // 300ms debounce
+
+    return () => clearTimeout(debounceRef.current);
   }, [searchInput]);
 
-  const handleSearchChange = (e) => {
-    setSearchInput(e.target.value); // update immediately
-  };
+  const handleSearchChange = (e) => setSearchInput(e.target.value);
 
+  // Get unique categories
   const categories = useMemo(() => {
     const set = new Set(
       products
@@ -74,17 +83,12 @@ export default function Items() {
     return Array.from(set).map((t) => t.charAt(0).toUpperCase() + t.slice(1));
   }, [products]);
 
+  // Filter by category only (search handled by backend)
   const filtered = useMemo(() => {
-    return products.filter((p) => {
-      const matchCategory =
-        active === "All" || (p.type || "Other").trim().toLowerCase() === active.toLowerCase();
-      const matchSearch =
-        search.trim() === "" ||
-        p.name.toLowerCase().includes(search.toLowerCase()) ||
-        (p.brand && p.brand.toLowerCase().includes(search.toLowerCase()));
-      return matchCategory && matchSearch;
-    });
-  }, [products, active, search]);
+    return products.filter(
+      (p) => active === "All" || (p.type || "Other").trim().toLowerCase() === active.toLowerCase()
+    );
+  }, [products, active]);
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this item?")) return;
@@ -94,7 +98,7 @@ export default function Items() {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error("Failed to delete item");
-      fetchItems();
+      fetchItems(searchInput);
     } catch (err) {
       alert(err.message);
     }
@@ -111,7 +115,7 @@ export default function Items() {
         body: formData,
       });
       if (!res.ok) throw new Error("Image upload failed");
-      fetchItems();
+      fetchItems(searchInput);
     } catch (err) {
       alert(err.message);
     }
