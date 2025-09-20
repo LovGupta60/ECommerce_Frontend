@@ -8,7 +8,7 @@ import Navbar from "./components/Navbar";
 // Pages
 import Home from "./pages/Home";
 import Items from "./pages/Items";
-import ItemDetails from "./pages/ItemsDetails"; // ✅ Ensure filename matches exactly
+import ItemDetails from "./pages/ItemsDetails"; 
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import CartPage from "./pages/Cart";
@@ -17,9 +17,12 @@ import Auth from "./pages/Auth";
 import Profile from "./pages/ProfilePage";
 
 // Admin pages
-import AdminItemPage from "./pages/admin/AdminItemPage.jsx"; // ✅ Default export
-import AdminOrders from "./pages/AdminOrders.jsx"; // ✅ Default export
-import Payment from "./pages/Payment.jsx"; // ✅ Default export
+import AdminItemPage from "./pages/admin/AdminItemPage.jsx";
+import AdminOrders from "./pages/AdminOrders.jsx";
+import Payment from "./pages/Payment.jsx";
+
+// New Admin page for failed searches
+import FailedSearches from "./pages/FailedSearches.jsx"; // ✅ Default export
 
 export default function App() {
   return (
@@ -46,6 +49,7 @@ export default function App() {
             <Route path="/admin/items" element={<AdminItemPage />} />
             <Route path="/admin/items/edit/:id" element={<AdminItemPage />} />
             <Route path="/admin/orders" element={<AdminOrders />} />
+            <Route path="/admin/search-history/failed" element={<FailedSearches />} />
           </Routes>
         </div>
       </main>

@@ -1,3 +1,4 @@
+// src/components/Navbar.jsx
 import React, { useState, useRef, useEffect } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { FiShoppingCart, FiUser, FiClipboard, FiMenu, FiX } from "react-icons/fi";
@@ -80,9 +81,7 @@ export default function Navbar() {
                 key={path}
                 to={path}
                 className={({ isActive }) =>
-                  `hover:text-yellow-300 transition ${
-                    isActive ? "text-yellow-300 font-semibold" : "text-white"
-                  }`
+                  `hover:text-yellow-300 transition ${isActive ? "text-yellow-300 font-semibold" : "text-white"}`
                 }
               >
                 {labels[index]}
@@ -91,9 +90,9 @@ export default function Navbar() {
           })}
         </nav>
 
-        {/* Cart/Admin/Auth Buttons */}
+        {/* Cart/Profile/Auth Buttons */}
         <div className="flex items-center gap-4">
-          {!isAdmin && (
+          {!isAdmin && token && (
             <Link
               to="/cart"
               className="relative inline-flex items-center gap-2 bg-white text-indigo-600 px-4 py-2 rounded-md font-medium hover:bg-gray-100 transition"
@@ -138,26 +137,24 @@ export default function Navbar() {
 
               {menuOpen && (
                 <div className="absolute right-2 sm:right-0 mt-2 min-w-[140px] max-w-[92vw] sm:w-48 bg-white text-indigo-600 rounded-md shadow-lg overflow-hidden z-[10000]">
-                  <Link
-                    to="/profile"
-                    className="block px-4 py-2 hover:bg-gray-100 transition"
-                    onClick={() => setMenuOpen(false)}
-                  >
+                  <Link to="/profile" className="block px-4 py-2 hover:bg-gray-100 transition" onClick={() => setMenuOpen(false)}>
                     My Profile
                   </Link>
                   {!isAdmin && (
-                    <Link
-                      to="/orders"
-                      className="block px-4 py-2 hover:bg-gray-100 transition"
-                      onClick={() => setMenuOpen(false)}
-                    >
+                    <Link to="/orders" className="block px-4 py-2 hover:bg-gray-100 transition" onClick={() => setMenuOpen(false)}>
                       My Orders
                     </Link>
                   )}
-                  <button
-                    onClick={handleLogout}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-100 transition"
-                  >
+                  {isAdmin && (
+                    <Link
+                      to="/admin/search-history/failed"
+                      className="block px-4 py-2 hover:bg-gray-100 transition"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      Search History
+                    </Link>
+                  )}
+                  <button onClick={handleLogout} className="w-full text-left px-4 py-2 hover:bg-gray-100 transition">
                     Logout
                   </button>
                 </div>
@@ -176,28 +173,39 @@ export default function Navbar() {
             <NavLink to="/about" onClick={() => setMobileOpen(false)} className="py-2 border-b">About</NavLink>
             <NavLink to="/contact" onClick={() => setMobileOpen(false)} className="py-2 border-b">Contact</NavLink>
 
-            {!isAdmin && (
-              <Link to="/cart" onClick={() => setMobileOpen(false)} className="py-2 border-b flex items-center gap-2"> 
+            {!isAdmin && token && (
+              <Link to="/cart" onClick={() => setMobileOpen(false)} className="py-2 border-b flex items-center gap-2">
                 <FiShoppingCart /> Cart <span className="ml-auto bg-red-600 text-white text-xs px-2 rounded-full">{totalQty}</span>
               </Link>
             )}
 
             {isAdmin && (
-              <Link to="/admin/orders" onClick={() => setMobileOpen(false)} className="py-2 border-b flex items-center gap-2">
+              <Link
+                to="/admin/orders"
+                onClick={() => setMobileOpen(false)}
+                className="py-2 border-b flex items-center gap-2"
+              >
                 <FiClipboard /> Orders
               </Link>
             )}
 
-            {!token ? (
-              <NavLink to="/auth" onClick={() => setMobileOpen(false)} className="py-2 border-b">Login / Register</NavLink>
-            ) : (
+            {token && (
               <>
                 <NavLink to="/profile" onClick={() => setMobileOpen(false)} className="py-2 border-b">My Profile</NavLink>
                 {!isAdmin && (
                   <NavLink to="/orders" onClick={() => setMobileOpen(false)} className="py-2 border-b">My Orders</NavLink>
                 )}
+                {isAdmin && (
+                  <Link to="/admin/search-history/failed" onClick={() => setMobileOpen(false)} className="py-2 border-b">
+                    Search History
+                  </Link>
+                )}
                 <button onClick={() => { handleLogout(); setMobileOpen(false); }} className="text-left py-2">Logout</button>
               </>
+            )}
+
+            {!token && (
+              <NavLink to="/auth" onClick={() => setMobileOpen(false)} className="py-2 border-b">Login / Register</NavLink>
             )}
           </div>
         </div>
