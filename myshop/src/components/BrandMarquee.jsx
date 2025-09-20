@@ -4,7 +4,7 @@ import brands from '../data/brands';
 // Continuous marquee implemented by translating an inner duplicated track
 // using transform (GPU-accelerated) for smoother motion and avoiding
 // scrollLeft measurement issues.
-export default function BrandMarquee({ speed = 40 }) {
+export default function BrandMarquee({ speed = 150 }) {
   const containerRef = useRef(null);
   const innerRef = useRef(null);
   const trackWidthRef = useRef(0);
