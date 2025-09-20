@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useRef } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CategoryTabs from "../components/CategoryTabs";
 import { useCart } from "../context/CartContext";
@@ -10,8 +10,10 @@ export default function Items() {
   const [active, setActive] = useState("All");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [search, setSearch] = useState("");
-  const debounceRef = useRef(null);
+
+  // Search states
+  const [searchInput, setSearchInput] = useState(""); // immediate input
+  const [search, setSearch] = useState("");           // debounced value
 
   const token = localStorage.getItem("token");
   let isAdmin = false;
@@ -30,10 +32,10 @@ export default function Items() {
   const fetchItems = async () => {
     setLoading(true);
     try {
-      let url = isAdmin
+      const url = isAdmin
         ? `https://demo-deployment-ervl.onrender.com/admin/items/getall`
         : `https://demo-deployment-ervl.onrender.com/items/public`;
-      let headers = isAdmin ? { Authorization: `Bearer ${token}` } : {};
+      const headers = isAdmin ? { Authorization: `Bearer ${token}` } : {};
       const res = await fetch(url, { headers });
       if (!res.ok) throw new Error("Failed to fetch items");
       const data = await res.json();
@@ -50,10 +52,17 @@ export default function Items() {
     fetchItems();
   }, []);
 
+  // Debounce search for mobile-friendly typing
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setSearch(searchInput);
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(handler);
+  }, [searchInput]);
+
   const handleSearchChange = (e) => {
-    const value = e.target.value;
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => setSearch(value), 300);
+    setSearchInput(e.target.value); // update immediately
   };
 
   const categories = useMemo(() => {
@@ -65,15 +74,17 @@ export default function Items() {
     return Array.from(set).map((t) => t.charAt(0).toUpperCase() + t.slice(1));
   }, [products]);
 
-  const filtered = products.filter((p) => {
-    const matchCategory =
-      active === "All" || (p.type || "Other").trim().toLowerCase() === active.toLowerCase();
-    const matchSearch =
-      search.trim() === "" ||
-      p.name.toLowerCase().includes(search.toLowerCase()) ||
-      (p.brand && p.brand.toLowerCase().includes(search.toLowerCase()));
-    return matchCategory && matchSearch;
-  });
+  const filtered = useMemo(() => {
+    return products.filter((p) => {
+      const matchCategory =
+        active === "All" || (p.type || "Other").trim().toLowerCase() === active.toLowerCase();
+      const matchSearch =
+        search.trim() === "" ||
+        p.name.toLowerCase().includes(search.toLowerCase()) ||
+        (p.brand && p.brand.toLowerCase().includes(search.toLowerCase()));
+      return matchCategory && matchSearch;
+    });
+  }, [products, active, search]);
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this item?")) return;
@@ -125,9 +136,9 @@ export default function Items() {
 
       <input
         type="text"
-        value={search}
+        value={searchInput}
         onChange={handleSearchChange}
-        placeholder="Search by product name..."
+        placeholder="Search by product name or brand..."
         className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
       />
 
