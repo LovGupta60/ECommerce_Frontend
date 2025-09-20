@@ -19,7 +19,9 @@ export default function Items() {
   try {
     if (token) {
       const payload = JSON.parse(atob(token.split(".")[1]));
-      isAdmin = Array.isArray(payload.roles) ? payload.roles.includes("ROLE_ADMIN") : payload.roles.toUpperCase() === "ROLE_ADMIN";
+      isAdmin = Array.isArray(payload.roles)
+        ? payload.roles.includes("ROLE_ADMIN")
+        : payload.roles.toUpperCase() === "ROLE_ADMIN";
     }
   } catch (err) {
     console.error("Invalid token", err);
@@ -55,13 +57,21 @@ export default function Items() {
   };
 
   const categories = useMemo(() => {
-    const set = new Set(products.map(p => (p.type || "Other").trim().toLowerCase()).filter(t => t !== "all"));
-    return Array.from(set).map(t => t.charAt(0).toUpperCase() + t.slice(1));
+    const set = new Set(
+      products
+        .map((p) => (p.type || "Other").trim().toLowerCase())
+        .filter((t) => t !== "all")
+    );
+    return Array.from(set).map((t) => t.charAt(0).toUpperCase() + t.slice(1));
   }, [products]);
 
-  const filtered = products.filter(p => {
-    const matchCategory = active === "All" || (p.type || "Other").trim().toLowerCase() === active.toLowerCase();
-    const matchSearch = search.trim() === "" || p.name.toLowerCase().includes(search.toLowerCase()) || (p.brand && p.brand.toLowerCase().includes(search.toLowerCase()));
+  const filtered = products.filter((p) => {
+    const matchCategory =
+      active === "All" || (p.type || "Other").trim().toLowerCase() === active.toLowerCase();
+    const matchSearch =
+      search.trim() === "" ||
+      p.name.toLowerCase().includes(search.toLowerCase()) ||
+      (p.brand && p.brand.toLowerCase().includes(search.toLowerCase()));
     return matchCategory && matchSearch;
   });
 
@@ -124,11 +134,15 @@ export default function Items() {
       <CategoryTabs categories={categories} active={active} onChange={setActive} />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-4">
-        {filtered.map(p => (
+        {filtered.map((p) => (
           <div key={p.id} className="border rounded-lg p-4 bg-white shadow-md relative">
             {p.imagePath && (
               <img
-                src={p.imagePath.startsWith("http") ? p.imagePath : `https://demo-deployment-ervl.onrender.com${p.imagePath}`}
+                src={
+                  p.imagePath.startsWith("http")
+                    ? p.imagePath
+                    : `https://demo-deployment-ervl.onrender.com${p.imagePath}`
+                }
                 alt={p.name}
                 className="w-full h-52 object-contain mb-2 rounded bg-gray-100"
               />
@@ -142,14 +156,38 @@ export default function Items() {
             <div className="flex gap-2 mt-2">
               {isAdmin ? (
                 <>
-                  <button onClick={() => navigate(`/admin/items/edit/${p.id}`)} className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-sm">Edit</button>
-                  <button onClick={() => handleDelete(p.id)} className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 text-sm">Delete</button>
-                  <input type="file" onChange={(e) => handleUploadImage(p.id, e.target.files[0])} className="mt-2 text-sm" />
+                  <button
+                    onClick={() => navigate(`/admin/items/edit/${p.id}`)}
+                    className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-sm"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(p.id)}
+                    className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 text-sm"
+                  >
+                    Delete
+                  </button>
+                  <input
+                    type="file"
+                    onChange={(e) => handleUploadImage(p.id, e.target.files[0])}
+                    className="mt-2 text-sm"
+                  />
                 </>
               ) : (
                 <>
-                  <button onClick={() => addToCart(p)} className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-sm">Add to Cart</button>
-                  <button onClick={() => navigate(`/items/${p.id}`)} className="bg-yellow-500 text-blue-800 px-2 py-1 rounded hover:bg-yellow-400 text-sm">See More</button>
+                  <button
+                    onClick={() => addToCart(p.id, 1)}
+                    className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-sm"
+                  >
+                    Add to Cart
+                  </button>
+                  <button
+                    onClick={() => navigate(`/items/${p.id}`)}
+                    className="bg-yellow-500 text-blue-800 px-2 py-1 rounded hover:bg-yellow-400 text-sm"
+                  >
+                    See More
+                  </button>
                 </>
               )}
             </div>

@@ -9,15 +9,22 @@ const AdminOrders = () => {
     const fetchOrders = async () => {
       try {
         const token = localStorage.getItem("token");
-  const res = await fetch("https://demo-deployment-ervl.onrender.com/admin/orders", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await fetch(
+          "https://demo-deployment-ervl.onrender.com/admin/orders",
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
         if (!res.ok) throw new Error("Failed to load orders");
         const data = await res.json();
-        setOrders(data);
+
+        // Sort descending by createdAt
+        const sortedData = data.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+
+        setOrders(sortedData);
 
         const map = {};
-        (data || []).forEach((o) => {
+        (sortedData || []).forEach((o) => {
           map[o.id] = o.status;
         });
         setStatusById(map);
@@ -30,9 +37,6 @@ const AdminOrders = () => {
     fetchOrders();
   }, []);
 
-  if (loading) return <p className="p-6">Loading orders...</p>;
-  if (!orders.length) return <p className="p-6">No orders yet.</p>;
-
   const updateStatus = async (order) => {
     const newStatus = statusById[order.id] || order.status;
     if (newStatus === order.status) return;
@@ -41,11 +45,8 @@ const AdminOrders = () => {
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(
-  `https://demo-deployment-ervl.onrender.com/admin/orders/${order.id}/status?status=${encodeURIComponent(newStatus)}`,
-        {
-          method: "PUT",
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        `https://demo-deployment-ervl.onrender.com/admin/orders/${order.id}/status?status=${encodeURIComponent(newStatus)}`,
+        { method: "PUT", headers: { Authorization: `Bearer ${token}` } }
       );
       if (!res.ok) throw new Error("Failed to update status");
       const updated = await res.json();
@@ -57,6 +58,26 @@ const AdminOrders = () => {
     }
   };
 
+  const formatTime = (isoString) => {
+    const dt = new Date(isoString);
+    // IST offset +5:30
+    const istOffset = 5.5 * 60;
+    const localTime = new Date(dt.getTime() + istOffset * 60 * 1000);
+
+    return localTime.toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    });
+  };
+
+  if (loading) return <p className="p-6">Loading orders...</p>;
+  if (!orders.length) return <p className="p-6">No orders yet.</p>;
+
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Admin Orders</h1>
@@ -67,7 +88,7 @@ const AdminOrders = () => {
               <div>
                 <span className="font-semibold">Order #{order.id}</span>
                 <p className="text-sm text-gray-600">
-                  Placed at: {new Date(order.createdAt).toLocaleString()}
+                  Placed at: {formatTime(order.createdAt)}
                 </p>
                 <p className="text-sm">Payment: {order.paymentMethod}</p>
                 <p className="text-sm">Address: {order.address}</p>

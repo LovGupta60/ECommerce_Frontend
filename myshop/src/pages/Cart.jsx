@@ -7,8 +7,8 @@ const Cart = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("COD");
-  const [address, setAddress] = useState(""); // new
-  const [phoneNumber, setPhoneNumber] = useState(""); // new
+  const [address, setAddress] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const navigate = useNavigate();
 
   const handleQtyChange = (id, qty) => {
@@ -31,12 +31,11 @@ const Cart = () => {
       return;
     }
 
-    // COD checkout
     setLoading(true);
     setMessage("");
     try {
       const token = localStorage.getItem("token");
-  const res = await fetch("https://demo-deployment-ervl.onrender.com/cart/checkout", {
+      const res = await fetch("https://demo-deployment-ervl.onrender.com/cart/checkout", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -119,7 +118,6 @@ const Cart = () => {
 
       <p className="mt-4 font-bold text-lg">Total: ₹{total}</p>
 
-      {/* Address & Phone */}
       <div className="mt-4 space-y-2">
         <div>
           <label className="font-semibold">Address:</label>
@@ -143,7 +141,6 @@ const Cart = () => {
         </div>
       </div>
 
-      {/* Payment Method */}
       <div className="mt-4">
         <label className="font-semibold">Payment Method: </label>
         <select

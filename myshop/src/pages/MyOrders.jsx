@@ -11,12 +11,17 @@ const MyOrders = () => {
     const fetchOrders = async () => {
       try {
         const token = localStorage.getItem("token");
-  const res = await fetch("https://demo-deployment-ervl.onrender.com/orders", {
+        const res = await fetch("https://demo-deployment-ervl.onrender.com/orders", {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) throw new Error("Failed to load orders");
         const data = await res.json();
-        setOrders(data);
+
+        // Sort descending by createdAt
+        const sortedData = data.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+        setOrders(sortedData);
       } catch (err) {
         console.error(err);
       } finally {
@@ -26,18 +31,31 @@ const MyOrders = () => {
     fetchOrders();
   }, []);
 
-  if (loading) return <p className="p-6">Loading orders...</p>;
-  if (!orders.length) return <p className="p-6">You have no orders yet.</p>;
+  const formatTime = (isoString) => {
+    const dt = new Date(isoString);
+    const istOffset = 5.5 * 60;
+    const localTime = new Date(dt.getTime() + istOffset * 60 * 1000);
+
+    return localTime.toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    });
+  };
 
   const cancelOrder = async (id) => {
     if (!window.confirm(`Are you sure you want to cancel order #${id}?`)) return;
     try {
       setCancelling((s) => ({ ...s, [id]: true }));
       const token = localStorage.getItem("token");
-  const res = await fetch(`https://demo-deployment-ervl.onrender.com/orders/${id}/cancel`, {
-        method: "PUT",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `https://demo-deployment-ervl.onrender.com/orders/${id}/cancel`,
+        { method: "PUT", headers: { Authorization: `Bearer ${token}` } }
+      );
       if (!res.ok) {
         const text = await res.text();
         throw new Error(text || "Failed to cancel order");
@@ -57,7 +75,7 @@ const MyOrders = () => {
     try {
       const token = localStorage.getItem("token");
       const { address, phoneNumber } = updates[id];
-  const res = await fetch(`https://demo-deployment-ervl.onrender.com/orders/${id}/update`, {
+      const res = await fetch(`https://demo-deployment-ervl.onrender.com/orders/${id}/update`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -75,6 +93,9 @@ const MyOrders = () => {
     }
   };
 
+  if (loading) return <p className="p-6">Loading orders...</p>;
+  if (!orders.length) return <p className="p-6">You have no orders yet.</p>;
+
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">My Orders</h1>
@@ -88,7 +109,7 @@ const MyOrders = () => {
                 <div>
                   <span className="font-semibold">Order #{order.id}</span>
                   <p className="text-sm text-gray-600">
-                    Placed at: {new Date(order.createdAt).toLocaleString()}
+                    Placed at: {formatTime(order.createdAt)}
                   </p>
                   <p className="text-sm">Payment: {order.paymentMethod}</p>
                   {editing[order.id] ? (
@@ -101,10 +122,7 @@ const MyOrders = () => {
                           onChange={(e) =>
                             setUpdates((u) => ({
                               ...u,
-                              [order.id]: {
-                                ...u[order.id],
-                                address: e.target.value,
-                              },
+                              [order.id]: { ...u[order.id], address: e.target.value },
                             }))
                           }
                           className="border rounded px-2 py-1 w-full md:w-80"
@@ -118,10 +136,7 @@ const MyOrders = () => {
                           onChange={(e) =>
                             setUpdates((u) => ({
                               ...u,
-                              [order.id]: {
-                                ...u[order.id],
-                                phoneNumber: e.target.value,
-                              },
+                              [order.id]: { ...u[order.id], phoneNumber: e.target.value },
                             }))
                           }
                           className="border rounded px-2 py-1 w-full md:w-48"
@@ -181,10 +196,7 @@ const MyOrders = () => {
                           setEditing((e) => ({ ...e, [order.id]: true }));
                           setUpdates((u) => ({
                             ...u,
-                            [order.id]: {
-                              address: order.address,
-                              phoneNumber: order.phoneNumber,
-                            },
+                            [order.id]: { address: order.address, phoneNumber: order.phoneNumber },
                           }));
                         }}
                         className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm"
