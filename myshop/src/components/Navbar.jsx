@@ -11,7 +11,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const token = localStorage.getItem("token");
-  const isAdmin = localStorage.getItem("isAdmin") === "true"; // ✅ detect admin
+  const isAdmin = localStorage.getItem("isAdmin") === "true";
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -25,14 +25,9 @@ export default function Navbar() {
 
   useEffect(() => {
     const handleDocClick = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
-        setMenuOpen(false);
-      }
-      // If click is on the mobile button itself, ignore it here (button toggles menu)
+      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
       const clickedOnMobileButton = mobileButtonRef.current && mobileButtonRef.current.contains(e.target);
-      if (mobileRef.current && !mobileRef.current.contains(e.target) && !clickedOnMobileButton) {
-        setMobileOpen(false);
-      }
+      if (mobileRef.current && !mobileRef.current.contains(e.target) && !clickedOnMobileButton) setMobileOpen(false);
     };
     const handleEsc = (e) => {
       if (e.key === "Escape") {
@@ -49,23 +44,15 @@ export default function Navbar() {
   }, []);
 
   return (
-    <header className="bg-blue-600 shadow-md text-white sticky top-0 z-50">
-  <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between py-4">
-        {/* Mobile hamburger (left of logo on small screens) */}
+    <header className="bg-indigo-600 text-white sticky top-0 z-50 shadow-md">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between py-4">
+        {/* Mobile hamburger */}
         <div className="md:hidden mr-3 relative z-[9999]">
           <button
             ref={mobileButtonRef}
             type="button"
-            onClick={() => {
-              // use functional updater and log the computed next state so logs are accurate
-              setMobileOpen((s) => {
-                const next = !s;
-                // eslint-disable-next-line no-console
-                console.debug('[Navbar] mobile toggle ->', next);
-                return next;
-              });
-            }}
-            className="p-3 rounded-md bg-white text-blue-600 z-[9999] relative"
+            onClick={() => setMobileOpen((s) => !s)}
+            className="p-3 rounded-md bg-white text-indigo-600 relative"
             aria-label="Toggle menu"
           >
             {mobileOpen ? <FiX size={20} /> : <FiMenu size={20} />}
@@ -74,18 +61,17 @@ export default function Navbar() {
 
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3">
-          <div className="hidden sm:flex bg-white text-blue-600 rounded-full w-10 h-10 sm:items-center sm:justify-center font-bold text-lg shadow-md flex-shrink-0">
+          <div className="hidden sm:flex bg-white text-indigo-600 rounded-full w-10 h-10 sm:items-center sm:justify-center font-bold text-lg shadow-md flex-shrink-0">
             S
           </div>
-          {/* always show full brand text (no hiding) */}
           <div>
-            <div className="font-bold text-lg leading-tight">Gupta Hosiery & Crockery</div>
-            <div className="text-xs text-blue-200 -mt-0.5">Quality & Service</div>
+            <div className="font-bold text-lg text-white leading-tight">Gupta Hosiery & Crockery</div>
+            <div className="text-xs text-indigo-200 -mt-0.5">Quality & Service</div>
             <div className="text-xs text-yellow-300 font-semibold mt-0.5">Since 1970</div>
           </div>
         </Link>
 
-  {/* Nav links (desktop) */}
+        {/* Desktop nav links */}
         <nav className="hidden md:flex gap-6 items-center text-sm font-medium">
           {["/", "/items", "/about", "/contact"].map((path, index) => {
             const labels = ["Home", "Items", "About", "Contact"];
@@ -105,15 +91,12 @@ export default function Navbar() {
           })}
         </nav>
 
-        {/* mobile button moved to left of logo */}
-
-        {/* Cart + Admin Orders + Auth */}
-  <div className="flex items-center gap-4">
-          {/* ✅ Show Cart only for non-admins */}
+        {/* Cart/Admin/Auth Buttons */}
+        <div className="flex items-center gap-4">
           {!isAdmin && (
             <Link
               to="/cart"
-              className="relative inline-flex items-center gap-2 bg-white text-blue-600 px-4 py-2 rounded-md font-medium hover:bg-blue-100 transition"
+              className="relative inline-flex items-center gap-2 bg-white text-indigo-600 px-4 py-2 rounded-md font-medium hover:bg-gray-100 transition"
             >
               <FiShoppingCart size={18} />
               <span className="text-sm">Cart</span>
@@ -125,22 +108,20 @@ export default function Navbar() {
             </Link>
           )}
 
-          {/* ✅ Admin Orders Button (only for admins) */}
           {isAdmin && (
             <Link
               to="/admin/orders"
-              className="inline-flex items-center gap-2 bg-white text-blue-600 px-4 py-2 rounded-md font-medium hover:bg-blue-100 transition"
+              className="inline-flex items-center gap-2 bg-white text-indigo-600 px-4 py-2 rounded-md font-medium hover:bg-gray-100 transition"
             >
               <FiClipboard size={18} />
               <span className="text-sm">Orders</span>
             </Link>
           )}
 
-              {/* Profile / Auth */}
           {!token ? (
             <NavLink
               to="/auth"
-              className="bg-yellow-400 text-blue-800 px-4 py-2 rounded-md font-medium hover:bg-yellow-300 transition"
+              className="bg-yellow-400 text-indigo-800 px-4 py-2 rounded-md font-medium hover:bg-yellow-300 transition"
             >
               Login / Register
             </NavLink>
@@ -148,7 +129,7 @@ export default function Navbar() {
             <div className="hidden md:block relative" ref={menuRef}>
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
-                className="flex items-center gap-2 bg-white text-blue-600 px-4 py-2 rounded-md font-medium hover:bg-blue-100 transition"
+                className="flex items-center gap-2 bg-white text-indigo-600 px-4 py-2 rounded-md font-medium hover:bg-gray-100 transition"
                 aria-expanded={menuOpen}
               >
                 <FiUser size={18} />
@@ -156,29 +137,26 @@ export default function Navbar() {
               </button>
 
               {menuOpen && (
-                <div className="absolute right-2 sm:right-0 mt-2 min-w-[140px] max-w-[92vw] sm:w-48 bg-white text-blue-600 rounded-md shadow-lg overflow-hidden z-[10000]">
+                <div className="absolute right-2 sm:right-0 mt-2 min-w-[140px] max-w-[92vw] sm:w-48 bg-white text-indigo-600 rounded-md shadow-lg overflow-hidden z-[10000]">
                   <Link
                     to="/profile"
-                    className="block px-4 py-2 hover:bg-blue-50 transition"
+                    className="block px-4 py-2 hover:bg-gray-100 transition"
                     onClick={() => setMenuOpen(false)}
                   >
                     My Profile
                   </Link>
-
-                  {/* ✅ "My Orders" only for non-admins */}
                   {!isAdmin && (
                     <Link
                       to="/orders"
-                      className="block px-4 py-2 hover:bg-blue-50 transition"
+                      className="block px-4 py-2 hover:bg-gray-100 transition"
                       onClick={() => setMenuOpen(false)}
                     >
                       My Orders
                     </Link>
                   )}
-
                   <button
                     onClick={handleLogout}
-                    className="w-full text-left px-4 py-2 hover:bg-blue-50 transition"
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100 transition"
                   >
                     Logout
                   </button>
@@ -188,9 +166,10 @@ export default function Navbar() {
           )}
         </div>
       </div>
+
       {/* Mobile menu panel */}
       {mobileOpen && (
-        <div ref={mobileRef} className="md:hidden absolute left-0 right-0 top-full z-[9999] bg-white text-blue-600 shadow pointer-events-auto" role="menu" aria-hidden={!mobileOpen}>
+        <div ref={mobileRef} className="md:hidden absolute left-0 right-0 top-full z-[9999] bg-white text-indigo-600 shadow pointer-events-auto">
           <div className="flex flex-col p-4 gap-2">
             <NavLink to="/" onClick={() => setMobileOpen(false)} className="py-2 border-b">Home</NavLink>
             <NavLink to="/items" onClick={() => setMobileOpen(false)} className="py-2 border-b">Items</NavLink>
