@@ -14,23 +14,29 @@ export default function Items() {
 
   // Search states
   const [searchInput, setSearchInput] = useState(""); // immediate input
+  const [search, setSearch] = useState(""); // debounced search
   const debounceRef = useRef(null);
 
+  // Determine if admin
+  const [isAdmin, setIsAdmin] = useState(false);
   const token = localStorage.getItem("token");
-  let isAdmin = false;
 
-  try {
-    if (token) {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      isAdmin = Array.isArray(payload.roles)
-        ? payload.roles.includes("ROLE_ADMIN")
-        : payload.roles.toUpperCase() === "ROLE_ADMIN";
+  useEffect(() => {
+    try {
+      if (token) {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        setIsAdmin(
+          Array.isArray(payload.roles)
+            ? payload.roles.includes("ROLE_ADMIN")
+            : payload.roles.toUpperCase() === "ROLE_ADMIN"
+        );
+      }
+    } catch (err) {
+      console.error("Invalid token", err);
     }
-  } catch (err) {
-    console.error("Invalid token", err);
-  }
+  }, [token]);
 
-  // Fetch items from backend with optional search query
+  // Fetch items from backend (only for users)
   const fetchItems = async (query = "") => {
     setLoading(true);
     try {
@@ -38,7 +44,7 @@ export default function Items() {
       if (query) params.append("q", query);
 
       const url = isAdmin
-        ? `https://demo-deployment-ervl.onrender.com/admin/items/getall?${params.toString()}`
+        ? "https://demo-deployment-ervl.onrender.com/admin/items/getall"
         : `https://demo-deployment-ervl.onrender.com/items/public?${params.toString()}`;
 
       const headers = isAdmin ? { Authorization: `Bearer ${token}` } : {};
@@ -58,22 +64,27 @@ export default function Items() {
   // Initial load
   useEffect(() => {
     fetchItems();
-  }, []);
+  }, [isAdmin]);
 
-  // Debounced search
+  // Debounce search (user only)
   useEffect(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (isAdmin) {
+      setSearch(searchInput); // React search
+      return;
+    }
 
+    if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
-      fetchItems(searchInput);
-    }, 600); // 300ms debounce
+      setSearch(searchInput);
+      fetchItems(searchInput); // user search hits backend
+    }, 600);
 
     return () => clearTimeout(debounceRef.current);
-  }, [searchInput]);
+  }, [searchInput, isAdmin]);
 
   const handleSearchChange = (e) => setSearchInput(e.target.value);
 
-  // Get unique categories
+  // Categories (all)
   const categories = useMemo(() => {
     const set = new Set(
       products
@@ -83,13 +94,20 @@ export default function Items() {
     return Array.from(set).map((t) => t.charAt(0).toUpperCase() + t.slice(1));
   }, [products]);
 
-  // Filter by category only (search handled by backend)
+  // Filter products
   const filtered = useMemo(() => {
-    return products.filter(
-      (p) => active === "All" || (p.type || "Other").trim().toLowerCase() === active.toLowerCase()
-    );
-  }, [products, active]);
+    return products.filter((p) => {
+      const matchCategory =
+        active === "All" || (p.type || "Other").trim().toLowerCase() === active.toLowerCase();
+      const matchSearch =
+        search.trim() === "" ||
+        p.name.toLowerCase().includes(search.toLowerCase()) ||
+        (p.brand && p.brand.toLowerCase().includes(search.toLowerCase()));
+      return matchCategory && matchSearch;
+    });
+  }, [products, active, search]);
 
+  // Admin: delete
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this item?")) return;
     try {
@@ -98,12 +116,14 @@ export default function Items() {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error("Failed to delete item");
+      // Refresh items
       fetchItems(searchInput);
     } catch (err) {
       alert(err.message);
     }
   };
 
+  // Admin: upload image
   const handleUploadImage = async (id, file) => {
     if (!file) return;
     const formData = new FormData();
@@ -153,11 +173,7 @@ export default function Items() {
           <div key={p.id} className="border rounded-lg p-4 bg-white shadow-md relative">
             {p.imagePath && (
               <img
-                src={
-                  p.imagePath.startsWith("http")
-                    ? p.imagePath
-                    : `https://demo-deployment-ervl.onrender.com${p.imagePath}`
-                }
+                src={p.imagePath.startsWith("http") ? p.imagePath : `https://demo-deployment-ervl.onrender.com${p.imagePath}`}
                 alt={p.name}
                 className="w-full h-52 object-contain mb-2 rounded bg-gray-100"
               />
