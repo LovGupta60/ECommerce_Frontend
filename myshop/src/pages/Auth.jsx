@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FiEye, FiEyeOff } from "react-icons/fi"; // for eye icon
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -8,15 +9,15 @@ const Auth = () => {
   const [emailOrUsername, setEmailOrUsername] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState(""); // for register
+  const [showPassword, setShowPassword] = useState(false); // eye toggle
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    // existing submit logic unchanged
     try {
       if (isLogin) {
-        // LOGIN
         const endpoint = isAdmin
           ? "https://demo-deployment-ervl.onrender.com/auth/admin/login"
           : "https://demo-deployment-ervl.onrender.com/auth/login";
@@ -33,40 +34,30 @@ const Auth = () => {
 
         if (res.ok) {
           const data = await res.json();
-
-          // Save token and admin flag
           localStorage.setItem("token", data.token);
           localStorage.setItem("isAdmin", isAdmin ? "true" : "false");
-
-          // ✅ Print token clearly in console
           console.log("🔥 Login successful! Token:", data.token);
-
-          // Decode JWT payload safely
           try {
             const payload = JSON.parse(atob(data.token.split(".")[1]));
             console.log("📝 Decoded JWT payload:", payload);
           } catch (err) {
             console.warn("⚠️ Failed to decode token payload", err);
           }
-
-          navigate("/"); // go home
+          navigate("/");
         } else {
           alert("Invalid credentials");
         }
       } else {
-        // REGISTER
         const endpoint = "https://demo-deployment-ervl.onrender.com/auth/signup";
         const body = { name, email: emailOrUsername, password };
-
         const res = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
         });
-
         if (res.ok) {
           alert("Registration successful! Please login.");
-          setIsLogin(true); // switch to login tab
+          setIsLogin(true);
           setName("");
           setPassword("");
           setEmailOrUsername("");
@@ -124,14 +115,24 @@ const Auth = () => {
             className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500"
           />
 
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500"
-          />
+          {/* Password with eye toggle */}
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-indigo-500 pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+            >
+              {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+            </button>
+          </div>
 
           {isLogin && (
             <label className="flex items-center space-x-2">

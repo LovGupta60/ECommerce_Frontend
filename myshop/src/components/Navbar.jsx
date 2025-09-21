@@ -24,6 +24,7 @@ export default function Navbar() {
   const mobileRef = useRef(null);
   const mobileButtonRef = useRef(null);
 
+  // Click outside to close dropdowns
   useEffect(() => {
     const handleDocClick = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
@@ -136,15 +137,28 @@ export default function Navbar() {
               </button>
 
               {menuOpen && (
-                <div className="absolute right-2 sm:right-0 mt-2 min-w-[140px] max-w-[92vw] sm:w-48 bg-white text-indigo-600 rounded-md shadow-lg overflow-hidden z-[10000]">
-                  <Link to="/profile" className="block px-4 py-2 hover:bg-gray-100 transition" onClick={() => setMenuOpen(false)}>
-                    My Profile
-                  </Link>
+                <div className="absolute right-0 mt-2 min-w-[140px] sm:w-48 bg-white text-indigo-600 rounded-md shadow-lg overflow-hidden z-[10000]">
+                  {/* Only show "My Profile" for non-admin */}
                   {!isAdmin && (
-                    <Link to="/orders" className="block px-4 py-2 hover:bg-gray-100 transition" onClick={() => setMenuOpen(false)}>
+                    <Link
+                      to="/profile"
+                      className="block px-4 py-2 hover:bg-gray-100 transition"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      My Profile
+                    </Link>
+                  )}
+
+                  {!isAdmin && (
+                    <Link
+                      to="/orders"
+                      className="block px-4 py-2 hover:bg-gray-100 transition"
+                      onClick={() => setMenuOpen(false)}
+                    >
                       My Orders
                     </Link>
                   )}
+
                   {isAdmin && (
                     <Link
                       to="/admin/search-history/failed"
@@ -154,7 +168,11 @@ export default function Navbar() {
                       Search History
                     </Link>
                   )}
-                  <button onClick={handleLogout} className="w-full text-left px-4 py-2 hover:bg-gray-100 transition">
+
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100 transition"
+                  >
                     Logout
                   </button>
                 </div>
@@ -166,16 +184,32 @@ export default function Navbar() {
 
       {/* Mobile menu panel */}
       {mobileOpen && (
-        <div ref={mobileRef} className="md:hidden absolute left-0 right-0 top-full z-[9999] bg-white text-indigo-600 shadow pointer-events-auto">
+        <div
+          ref={mobileRef}
+          className="md:hidden absolute left-0 right-0 top-full z-[9999] bg-white text-indigo-600 shadow pointer-events-auto"
+        >
           <div className="flex flex-col p-4 gap-2">
-            <NavLink to="/" onClick={() => setMobileOpen(false)} className="py-2 border-b">Home</NavLink>
-            <NavLink to="/items" onClick={() => setMobileOpen(false)} className="py-2 border-b">Items</NavLink>
-            <NavLink to="/about" onClick={() => setMobileOpen(false)} className="py-2 border-b">About</NavLink>
-            <NavLink to="/contact" onClick={() => setMobileOpen(false)} className="py-2 border-b">Contact</NavLink>
+            <NavLink to="/" onClick={() => setMobileOpen(false)} className="py-2 border-b">
+              Home
+            </NavLink>
+            <NavLink to="/items" onClick={() => setMobileOpen(false)} className="py-2 border-b">
+              Items
+            </NavLink>
+            <NavLink to="/about" onClick={() => setMobileOpen(false)} className="py-2 border-b">
+              About
+            </NavLink>
+            <NavLink to="/contact" onClick={() => setMobileOpen(false)} className="py-2 border-b">
+              Contact
+            </NavLink>
 
             {!isAdmin && token && (
-              <Link to="/cart" onClick={() => setMobileOpen(false)} className="py-2 border-b flex items-center gap-2">
-                <FiShoppingCart /> Cart <span className="ml-auto bg-red-600 text-white text-xs px-2 rounded-full">{totalQty}</span>
+              <Link
+                to="/cart"
+                onClick={() => setMobileOpen(false)}
+                className="py-2 border-b flex items-center gap-2"
+              >
+                <FiShoppingCart /> Cart{" "}
+                <span className="ml-auto bg-red-600 text-white text-xs px-2 rounded-full">{totalQty}</span>
               </Link>
             )}
 
@@ -191,21 +225,53 @@ export default function Navbar() {
 
             {token && (
               <>
-                <NavLink to="/profile" onClick={() => setMobileOpen(false)} className="py-2 border-b">My Profile</NavLink>
                 {!isAdmin && (
-                  <NavLink to="/orders" onClick={() => setMobileOpen(false)} className="py-2 border-b">My Orders</NavLink>
+                  <>
+                    <NavLink
+                      to="/profile"
+                      onClick={() => setMobileOpen(false)}
+                      className="py-2 border-b"
+                    >
+                      My Profile
+                    </NavLink>
+                    <NavLink
+                      to="/orders"
+                      onClick={() => setMobileOpen(false)}
+                      className="py-2 border-b"
+                    >
+                      My Orders
+                    </NavLink>
+                  </>
                 )}
                 {isAdmin && (
-                  <Link to="/admin/search-history/failed" onClick={() => setMobileOpen(false)} className="py-2 border-b">
+                  <Link
+                    to="/admin/search-history/failed"
+                    onClick={() => setMobileOpen(false)}
+                    className="py-2 border-b"
+                  >
                     Search History
                   </Link>
                 )}
-                <button onClick={() => { handleLogout(); setMobileOpen(false); }} className="text-left py-2">Logout</button>
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setMobileOpen(false);
+                  }}
+                  className="text-left py-2"
+                >
+                  Logout
+                </button>
               </>
             )}
 
             {!token && (
-              <NavLink to="/auth" onClick={() => setMobileOpen(false)} className="py-2 border-b">Login / Register</NavLink>
+              <NavLink
+                to="/auth"
+                onClick={() => setMobileOpen(false)}
+                className="py-2 border-b"
+              >
+                Login / Register
+              </NavLink>
             )}
           </div>
         </div>

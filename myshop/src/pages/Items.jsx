@@ -69,14 +69,14 @@ export default function Items() {
   // Debounce search (user only)
   useEffect(() => {
     if (isAdmin) {
-      setSearch(searchInput); // React search
+      setSearch(searchInput);
       return;
     }
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       setSearch(searchInput);
-      fetchItems(searchInput); // user search hits backend
+      fetchItems(searchInput);
     }, 600);
 
     return () => clearTimeout(debounceRef.current);
@@ -116,7 +116,6 @@ export default function Items() {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error("Failed to delete item");
-      // Refresh items
       fetchItems(searchInput);
     } catch (err) {
       alert(err.message);
@@ -173,13 +172,19 @@ export default function Items() {
           <div key={p.id} className="border rounded-lg p-4 bg-white shadow-md relative">
             {p.imagePath && (
               <img
-                src={p.imagePath.startsWith("http") ? p.imagePath : `https://demo-deployment-ervl.onrender.com${p.imagePath}`}
+                src={
+                  p.imagePath.startsWith("http")
+                    ? p.imagePath
+                    : `https://demo-deployment-ervl.onrender.com${p.imagePath}`
+                }
                 alt={p.name}
                 className="w-full h-52 object-contain mb-2 rounded bg-gray-100"
               />
             )}
             <h3 className="font-semibold">{p.name}</h3>
-            <p className="text-sm text-gray-600">{p.brand} - {p.type}</p>
+            <p className="text-sm text-gray-600">
+              {p.brand} - {p.type}
+            </p>
             <p className="text-sm">{p.description}</p>
             <p className="mt-1 font-medium">₹{p.price}</p>
             <p className="text-xs text-gray-500">Stock: {p.stockQty}</p>
@@ -208,7 +213,13 @@ export default function Items() {
               ) : (
                 <>
                   <button
-                    onClick={() => addToCart(p.id, 1)}
+                    onClick={() => {
+                      if (!token) {
+                        navigate("/auth"); // redirect to login page
+                        return;
+                      }
+                      addToCart(p.id, 1);
+                    }}
                     className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-sm"
                   >
                     Add to Cart
