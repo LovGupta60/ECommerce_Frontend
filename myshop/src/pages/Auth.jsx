@@ -15,7 +15,6 @@ const Auth = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // existing submit logic unchanged
     try {
       if (isLogin) {
         const endpoint = isAdmin
@@ -37,12 +36,15 @@ const Auth = () => {
           localStorage.setItem("token", data.token);
           localStorage.setItem("isAdmin", isAdmin ? "true" : "false");
           console.log("🔥 Login successful! Token:", data.token);
+
+          // Decode JWT payload (optional)
           try {
             const payload = JSON.parse(atob(data.token.split(".")[1]));
             console.log("📝 Decoded JWT payload:", payload);
           } catch (err) {
             console.warn("⚠️ Failed to decode token payload", err);
           }
+
           navigate("/");
         } else {
           alert("Invalid credentials");
@@ -56,7 +58,7 @@ const Auth = () => {
           body: JSON.stringify(body),
         });
         if (res.ok) {
-          alert("Registration successful! Please login.");
+          // ✅ Instead of alert, just switch to login tab
           setIsLogin(true);
           setName("");
           setPassword("");

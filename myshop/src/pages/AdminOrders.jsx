@@ -4,6 +4,7 @@ const AdminOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusById, setStatusById] = useState({});
+  const [searchId, setSearchId] = useState(""); // 🔹 search query
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -40,17 +41,22 @@ const AdminOrders = () => {
   const updateStatus = async (order) => {
     const newStatus = statusById[order.id] || order.status;
     if (newStatus === order.status) return;
-    if (!window.confirm(`Change order #${order.id} status to ${newStatus}?`)) return;
+    if (!window.confirm(`Change order #${order.id} status to ${newStatus}?`))
+      return;
 
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(
-        `https://demo-deployment-ervl.onrender.com/admin/orders/${order.id}/status?status=${encodeURIComponent(newStatus)}`,
+        `https://demo-deployment-ervl.onrender.com/admin/orders/${order.id}/status?status=${encodeURIComponent(
+          newStatus
+        )}`,
         { method: "PUT", headers: { Authorization: `Bearer ${token}` } }
       );
       if (!res.ok) throw new Error("Failed to update status");
       const updated = await res.json();
-      setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
+      setOrders((prev) =>
+        prev.map((o) => (o.id === updated.id ? updated : o))
+      );
       setStatusById((s) => ({ ...s, [order.id]: updated.status }));
     } catch (err) {
       console.error(err);
@@ -76,13 +82,42 @@ const AdminOrders = () => {
   };
 
   if (loading) return <p className="p-6">Loading orders...</p>;
-  if (!orders.length) return <p className="p-6">No orders yet.</p>;
+
+  // 🔹 Filter orders by search (id, address, phone, product names, payment method)
+  const filteredOrders = orders.filter((o) => {
+    if (!searchId.trim()) return true;
+    const q = searchId.trim().toLowerCase();
+
+    const matchId = o.id.toString().includes(q);
+    const matchAddress = o.address?.toLowerCase().includes(q);
+    const matchPhone = o.phoneNumber?.toLowerCase().includes(q);
+    const matchPayment = o.paymentMethod?.toLowerCase().includes(q);
+    const matchItems = o.items.some((i) =>
+      i.itemName?.toLowerCase().includes(q)
+    );
+
+    return matchId || matchAddress || matchPhone || matchPayment || matchItems;
+  });
+
+  if (!filteredOrders.length) return <p className="p-6">No orders found.</p>;
 
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Admin Orders</h1>
+
+      {/* 🔹 Search box */}
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search by ID, address, phone, product, or payment..."
+          value={searchId}
+          onChange={(e) => setSearchId(e.target.value)}
+          className="border px-3 py-2 rounded w-full md:w-64"
+        />
+      </div>
+
       <ul className="space-y-6">
-        {orders.map((order) => (
+        {filteredOrders.map((order) => (
           <li key={order.id} className="border rounded-lg shadow p-4 space-y-2">
             <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
               <div>
@@ -98,7 +133,10 @@ const AdminOrders = () => {
                 <select
                   value={statusById[order.id] || order.status}
                   onChange={(e) =>
-                    setStatusById((s) => ({ ...s, [order.id]: e.target.value }))
+                    setStatusById((s) => ({
+                      ...s,
+                      [order.id]: e.target.value,
+                    }))
                   }
                   className="border rounded px-2 py-1 bg-white text-sm"
                 >
@@ -125,7 +163,8 @@ const AdminOrders = () => {
               ))}
             </ul>
             <p className="font-bold">
-              Total: ₹{order.items.reduce((sum, i) => sum + i.price * i.qty, 0)}
+              Total: ₹
+              {order.items.reduce((sum, i) => sum + i.price * i.qty, 0)}
             </p>
 
             <div className="mt-1">

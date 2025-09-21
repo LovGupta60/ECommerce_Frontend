@@ -153,6 +153,31 @@ const Cart = () => {
         </select>
       </div>
 
+      {/* Show WhatsApp notice only if ONLINE is selected */}
+      {paymentMethod === "ONLINE" && (
+        <div className="bg-yellow-400 text-indigo-900 font-bold text-center py-3 rounded-lg shadow-lg animate-pulse space-y-2 mt-4">
+          <p className="text-red-600 text-lg">
+            Online payment service is not available! Contact us to order/payment.
+          </p>
+          <div className="flex justify-center gap-4 mt-1">
+            <a
+              href="https://wa.me/919415071592"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+            >
+              Order on WhatsApp
+            </a>
+            <a
+              href="tel:9415071592"
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+            >
+              Call to Order
+            </a>
+          </div>
+        </div>
+      )}
+
       <button
         onClick={handleCheckout}
         disabled={loading}

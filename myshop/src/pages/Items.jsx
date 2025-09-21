@@ -1,26 +1,26 @@
-// src/pages/Items.jsx
 import React, { useEffect, useMemo, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import CategoryTabs from "../components/CategoryTabs";
 import { useCart } from "../context/CartContext";
 
 export default function Items() {
   const { addToCart } = useCart();
   const navigate = useNavigate();
+  const location = useLocation();
+
   const [products, setProducts] = useState([]);
   const [active, setActive] = useState("All");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Search states
-  const [searchInput, setSearchInput] = useState(""); // immediate input
-  const [search, setSearch] = useState(""); // debounced search
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
   const debounceRef = useRef(null);
 
-  // Determine if admin
   const [isAdmin, setIsAdmin] = useState(false);
   const token = localStorage.getItem("token");
 
+  // Check token for admin
   useEffect(() => {
     try {
       if (token) {
@@ -36,7 +36,7 @@ export default function Items() {
     }
   }, [token]);
 
-  // Fetch items from backend (only for users)
+  // Fetch items
   const fetchItems = async (query = "") => {
     setLoading(true);
     try {
@@ -61,30 +61,31 @@ export default function Items() {
     }
   };
 
-  // Initial load
+  // Use searchQuery from Home page
   useEffect(() => {
-    fetchItems();
-  }, [isAdmin]);
+    if (location.state?.searchQuery) {
+      setSearchInput(location.state.searchQuery);
+      fetchItems(location.state.searchQuery);
+    } else {
+      fetchItems();
+    }
+  }, [location.state, isAdmin]);
 
-  // Debounce search (user only)
   useEffect(() => {
     if (isAdmin) {
       setSearch(searchInput);
       return;
     }
-
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       setSearch(searchInput);
       fetchItems(searchInput);
     }, 600);
-
     return () => clearTimeout(debounceRef.current);
   }, [searchInput, isAdmin]);
 
   const handleSearchChange = (e) => setSearchInput(e.target.value);
 
-  // Categories (all)
   const categories = useMemo(() => {
     const set = new Set(
       products
@@ -94,11 +95,9 @@ export default function Items() {
     return Array.from(set).map((t) => t.charAt(0).toUpperCase() + t.slice(1));
   }, [products]);
 
-  // Filter products
   const filtered = useMemo(() => {
     return products.filter((p) => {
-      const matchCategory =
-        active === "All" || (p.type || "Other").trim().toLowerCase() === active.toLowerCase();
+      const matchCategory = active === "All" || (p.type || "Other").trim().toLowerCase() === active.toLowerCase();
       const matchSearch =
         search.trim() === "" ||
         p.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -107,7 +106,6 @@ export default function Items() {
     });
   }, [products, active, search]);
 
-  // Admin: delete
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this item?")) return;
     try {
@@ -116,24 +114,6 @@ export default function Items() {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error("Failed to delete item");
-      fetchItems(searchInput);
-    } catch (err) {
-      alert(err.message);
-    }
-  };
-
-  // Admin: upload image
-  const handleUploadImage = async (id, file) => {
-    if (!file) return;
-    const formData = new FormData();
-    formData.append("file", file);
-    try {
-      const res = await fetch(`https://demo-deployment-ervl.onrender.com/admin/items/${id}/image`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
-      if (!res.ok) throw new Error("Image upload failed");
       fetchItems(searchInput);
     } catch (err) {
       alert(err.message);
@@ -172,19 +152,13 @@ export default function Items() {
           <div key={p.id} className="border rounded-lg p-4 bg-white shadow-md relative">
             {p.imagePath && (
               <img
-                src={
-                  p.imagePath.startsWith("http")
-                    ? p.imagePath
-                    : `https://demo-deployment-ervl.onrender.com${p.imagePath}`
-                }
+                src={p.imagePath.startsWith("http") ? p.imagePath : `https://demo-deployment-ervl.onrender.com${p.imagePath}`}
                 alt={p.name}
                 className="w-full h-52 object-contain mb-2 rounded bg-gray-100"
               />
             )}
             <h3 className="font-semibold">{p.name}</h3>
-            <p className="text-sm text-gray-600">
-              {p.brand} - {p.type}
-            </p>
+            <p className="text-sm text-gray-600">{p.brand} - {p.type}</p>
             <p className="text-sm">{p.description}</p>
             <p className="mt-1 font-medium">₹{p.price}</p>
             <p className="text-xs text-gray-500">Stock: {p.stockQty}</p>
@@ -192,44 +166,13 @@ export default function Items() {
             <div className="flex gap-2 mt-2">
               {isAdmin ? (
                 <>
-                  <button
-                    onClick={() => navigate(`/admin/items/edit/${p.id}`)}
-                    className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-sm"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(p.id)}
-                    className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 text-sm"
-                  >
-                    Delete
-                  </button>
-                  <input
-                    type="file"
-                    onChange={(e) => handleUploadImage(p.id, e.target.files[0])}
-                    className="mt-2 text-sm"
-                  />
+                  <button onClick={() => navigate(`/admin/items/edit/${p.id}`)} className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-sm">Edit</button>
+                  <button onClick={() => handleDelete(p.id)} className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 text-sm">Delete</button>
                 </>
               ) : (
                 <>
-                  <button
-                    onClick={() => {
-                      if (!token) {
-                        navigate("/auth"); // redirect to login page
-                        return;
-                      }
-                      addToCart(p.id, 1);
-                    }}
-                    className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-sm"
-                  >
-                    Add to Cart
-                  </button>
-                  <button
-                    onClick={() => navigate(`/items/${p.id}`)}
-                    className="bg-yellow-500 text-blue-800 px-2 py-1 rounded hover:bg-yellow-400 text-sm"
-                  >
-                    See More
-                  </button>
+                  <button onClick={() => { if (!token) { navigate("/auth"); return; } addToCart(p.id, 1); }} className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-sm">Add to Cart</button>
+                  <button onClick={() => navigate(`/items/${p.id}`)} className="bg-yellow-500 text-blue-800 px-2 py-1 rounded hover:bg-yellow-400 text-sm">See More</button>
                 </>
               )}
             </div>

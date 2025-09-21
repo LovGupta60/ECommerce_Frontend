@@ -165,7 +165,7 @@ export default function Navbar() {
                       className="block px-4 py-2 hover:bg-gray-100 transition"
                       onClick={() => setMenuOpen(false)}
                     >
-                      Search History
+                       Failed Search History
                     </Link>
                   )}
 
@@ -249,7 +249,7 @@ export default function Navbar() {
                     onClick={() => setMobileOpen(false)}
                     className="py-2 border-b"
                   >
-                    Search History
+                     Search History
                   </Link>
                 )}
                 <button
