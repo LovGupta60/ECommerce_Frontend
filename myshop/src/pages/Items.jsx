@@ -20,6 +20,19 @@ export default function Items() {
   const [isAdmin, setIsAdmin] = useState(false);
   const token = localStorage.getItem("token");
 
+  // Price filter state
+  const [priceFilter, setPriceFilter] = useState("");
+
+  const priceOptions = [
+    { label: "Under ₹500", value: 500 },
+    { label: "Under ₹1000", value: 1000 },
+    { label: "Under ₹2000", value: 2000 },
+    { label: "Under ₹4000", value: 4000 },
+    { label: "Under ₹10000", value: 10000 },
+    { label: "Under ₹15000", value: 15000 },
+    { label: "Under ₹20000", value: 20000 },
+  ];
+
   // Check token for admin
   useEffect(() => {
     try {
@@ -92,27 +105,39 @@ export default function Items() {
         .map((p) => (p.type || "Other").trim().toLowerCase())
         .filter((t) => t !== "all")
     );
-    return Array.from(set).map((t) => t.charAt(0).toUpperCase() + t.slice(1));
+    return Array.from(set).map(
+      (t) => t.charAt(0).toUpperCase() + t.slice(1)
+    );
   }, [products]);
 
   const filtered = useMemo(() => {
     return products.filter((p) => {
-      const matchCategory = active === "All" || (p.type || "Other").trim().toLowerCase() === active.toLowerCase();
+      const matchCategory =
+        active === "All" ||
+        (p.type || "Other").trim().toLowerCase() === active.toLowerCase();
+
       const matchSearch =
         search.trim() === "" ||
         p.name.toLowerCase().includes(search.toLowerCase()) ||
         (p.brand && p.brand.toLowerCase().includes(search.toLowerCase()));
-      return matchCategory && matchSearch;
+
+      const matchPrice =
+        !priceFilter || p.price <= Number(priceFilter);
+
+      return matchCategory && matchSearch && matchPrice;
     });
-  }, [products, active, search]);
+  }, [products, active, search, priceFilter]);
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this item?")) return;
     try {
-      const res = await fetch(`https://demo-deployment-ervl.onrender.com/admin/items/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `https://demo-deployment-ervl.onrender.com/admin/items/${id}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       if (!res.ok) throw new Error("Failed to delete item");
       fetchItems(searchInput);
     } catch (err) {
@@ -120,8 +145,12 @@ export default function Items() {
     }
   };
 
-  if (loading) return <div className="p-10 text-center animate-pulse">Loading items...</div>;
-  if (error) return <div className="p-10 text-center text-red-600">{error}</div>;
+  if (loading)
+    return (
+      <div className="p-10 text-center animate-pulse">Loading items...</div>
+    );
+  if (error)
+    return <div className="p-10 text-center text-red-600">{error}</div>;
 
   return (
     <div className="p-6">
@@ -145,20 +174,58 @@ export default function Items() {
         className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
       />
 
-      <CategoryTabs categories={categories} active={active} onChange={setActive} />
+      <CategoryTabs
+        categories={categories}
+        active={active}
+        onChange={setActive}
+      />
+
+      {/* Price Filter Buttons */}
+      <div className="flex flex-wrap gap-2 mt-4">
+        {priceOptions.map((opt) => (
+          <button
+            key={opt.value}
+            onClick={() => setPriceFilter(opt.value)}
+            className={`px-3 py-1 rounded border text-sm ${
+              priceFilter == opt.value
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 hover:bg-gray-200"
+            }`}
+          >
+            {opt.label}
+          </button>
+        ))}
+        {priceFilter && (
+          <button
+            onClick={() => setPriceFilter("")}
+            className="px-3 py-1 rounded border bg-red-100 hover:bg-red-200 text-sm"
+          >
+            Clear
+          </button>
+        )}
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-4">
         {filtered.map((p) => (
-          <div key={p.id} className="border rounded-lg p-4 bg-white shadow-md relative">
+          <div
+            key={p.id}
+            className="border rounded-lg p-4 bg-white shadow-md relative"
+          >
             {p.imagePath && (
               <img
-                src={p.imagePath.startsWith("http") ? p.imagePath : `https://demo-deployment-ervl.onrender.com${p.imagePath}`}
+                src={
+                  p.imagePath.startsWith("http")
+                    ? p.imagePath
+                    : `https://demo-deployment-ervl.onrender.com${p.imagePath}`
+                }
                 alt={p.name}
                 className="w-full h-52 object-contain mb-2 rounded bg-gray-100"
               />
             )}
             <h3 className="font-semibold">{p.name}</h3>
-            <p className="text-sm text-gray-600">{p.brand} - {p.type}</p>
+            <p className="text-sm text-gray-600">
+              {p.brand} - {p.type}
+            </p>
             <p className="text-sm">{p.description}</p>
             <p className="mt-1 font-medium">₹{p.price}</p>
             <p className="text-xs text-gray-500">Stock: {p.stockQty}</p>
@@ -166,13 +233,39 @@ export default function Items() {
             <div className="flex gap-2 mt-2">
               {isAdmin ? (
                 <>
-                  <button onClick={() => navigate(`/admin/items/edit/${p.id}`)} className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-sm">Edit</button>
-                  <button onClick={() => handleDelete(p.id)} className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 text-sm">Delete</button>
+                  <button
+                    onClick={() => navigate(`/admin/items/edit/${p.id}`)}
+                    className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-sm"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(p.id)}
+                    className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 text-sm"
+                  >
+                    Delete
+                  </button>
                 </>
               ) : (
                 <>
-                  <button onClick={() => { if (!token) { navigate("/auth"); return; } addToCart(p.id, 1); }} className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-sm">Add to Cart</button>
-                  <button onClick={() => navigate(`/items/${p.id}`)} className="bg-yellow-500 text-blue-800 px-2 py-1 rounded hover:bg-yellow-400 text-sm">See More</button>
+                  <button
+                    onClick={() => {
+                      if (!token) {
+                        navigate("/auth");
+                        return;
+                      }
+                      addToCart(p.id, 1);
+                    }}
+                    className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-sm"
+                  >
+                    Add to Cart
+                  </button>
+                  <button
+                    onClick={() => navigate(`/items/${p.id}`)}
+                    className="bg-yellow-500 text-blue-800 px-2 py-1 rounded hover:bg-yellow-400 text-sm"
+                  >
+                    See More
+                  </button>
                 </>
               )}
             </div>
