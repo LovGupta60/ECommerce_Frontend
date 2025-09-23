@@ -11,8 +11,9 @@ const Cart = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const navigate = useNavigate();
 
-  const handleQtyChange = (id, qty) => {
-    if (qty > 0) updateQty(id, qty);
+  const handleQtyChange = (id, newQty) => {
+    if (newQty < 1) return; // prevent zero or negative
+    updateQty(id, newQty);
   };
 
   const total = cart.reduce((sum, c) => {
@@ -49,7 +50,7 @@ const Cart = () => {
       navigate("/orders");
     } catch (err) {
       console.error(err);
-      setMessage("❌ Failed to place order");
+      setMessage("❌ Failed to place order.");
     } finally {
       setLoading(false);
     }
@@ -71,12 +72,13 @@ const Cart = () => {
           if (image && image.startsWith("/")) {
             image = `https://demo-deployment-ervl.onrender.com${image}`;
           }
+
           return (
             <li
               key={cartItem.id || `${product?.id || name}-${Math.random()}`}
-              className="flex justify-between items-center border p-4 rounded-lg shadow"
+              className="flex flex-col sm:flex-row justify-between items-start sm:items-center border p-4 rounded-lg shadow"
             >
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-4 mb-2 sm:mb-0">
                 {image ? (
                   <img
                     src={image}
@@ -91,23 +93,37 @@ const Cart = () => {
                 <div>
                   <h2 className="font-semibold">{name}</h2>
                   <p>Price: ₹{price}</p>
-                  <p>
-                    Qty:
-                    <input
-                      type="number"
-                      value={cartItem.qty}
-                      min={1}
-                      className="w-16 ml-2 border rounded px-1"
-                      onChange={(e) =>
-                        handleQtyChange(cartItem.id, parseInt(e.target.value))
-                      }
-                    />
-                  </p>
                 </div>
               </div>
+
+              {/* Quantity controls */}
+              <div className="flex items-center mt-2 sm:mt-0 gap-1">
+                <button
+                  onClick={() => handleQtyChange(cartItem.id, cartItem.qty - 1)}
+                  className="bg-gray-300 px-3 py-1 rounded-l hover:bg-gray-400"
+                >
+                  -
+                </button>
+                <input
+                  type="number"
+                  value={cartItem.qty}
+                  min={1}
+                  className="w-16 text-center border-t border-b border-gray-300"
+                  onChange={(e) =>
+                    handleQtyChange(cartItem.id, parseInt(e.target.value))
+                  }
+                />
+                <button
+                  onClick={() => handleQtyChange(cartItem.id, cartItem.qty + 1)}
+                  className="bg-gray-300 px-3 py-1 rounded-r hover:bg-gray-400"
+                >
+                  +
+                </button>
+              </div>
+
               <button
                 onClick={() => removeFromCart(cartItem.id)}
-                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+                className="mt-2 sm:mt-0 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
               >
                 Remove
               </button>
@@ -153,7 +169,6 @@ const Cart = () => {
         </select>
       </div>
 
-      {/* Show WhatsApp notice only if ONLINE is selected */}
       {paymentMethod === "ONLINE" && (
         <div className="bg-yellow-400 text-indigo-900 font-bold text-center py-3 rounded-lg shadow-lg animate-pulse space-y-2 mt-4">
           <p className="text-red-600 text-lg">

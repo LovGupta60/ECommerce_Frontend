@@ -110,6 +110,7 @@ export default function Items() {
     );
   }, [products]);
 
+  // Filter products based on category, search, price, and stock
   const filtered = useMemo(() => {
     return products.filter((p) => {
       const matchCategory =
@@ -121,12 +122,14 @@ export default function Items() {
         p.name.toLowerCase().includes(search.toLowerCase()) ||
         (p.brand && p.brand.toLowerCase().includes(search.toLowerCase()));
 
-      const matchPrice =
-        !priceFilter || p.price <= Number(priceFilter);
+      const matchPrice = !priceFilter || p.price <= Number(priceFilter);
 
-      return matchCategory && matchSearch && matchPrice;
+      // Only show in-stock products to normal users
+      const matchStock = isAdmin || p.stockQty > 0;
+
+      return matchCategory && matchSearch && matchPrice && matchStock;
     });
-  }, [products, active, search, priceFilter]);
+  }, [products, active, search, priceFilter, isAdmin]);
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this item?")) return;
@@ -209,8 +212,17 @@ export default function Items() {
         {filtered.map((p) => (
           <div
             key={p.id}
-            className="border rounded-lg p-4 bg-white shadow-md relative"
+            className={`border rounded-lg p-4 bg-white shadow-md relative ${
+              !isAdmin && p.stockQty === 0 ? "opacity-50 pointer-events-none" : ""
+            }`}
           >
+            {/* Out-of-stock badge for admins */}
+            {isAdmin && p.stockQty === 0 && (
+              <div className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded">
+                Out of Stock
+              </div>
+            )}
+
             {p.imagePath && (
               <img
                 src={
@@ -257,8 +269,9 @@ export default function Items() {
                       addToCart(p.id, 1);
                     }}
                     className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-sm"
+                    disabled={p.stockQty === 0}
                   >
-                    Add to Cart
+                    {p.stockQty === 0 ? "Out of Stock" : "Add to Cart"}
                   </button>
                   <button
                     onClick={() => navigate(`/items/${p.id}`)}
