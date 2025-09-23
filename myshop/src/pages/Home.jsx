@@ -128,6 +128,7 @@ export default function Home() {
     <div className="p-4 md:p-6 space-y-6">
       {/* Header */}
       <header className="bg-indigo-600 text-white py-6 rounded-lg text-center space-y-4">
+
         <h1 className="text-3xl md:text-4xl font-bold">Gupta Hosiery & Crockery Store</h1>
         <p className="mt-2 text-lg md:text-xl">
           Quality products for your home and lifestyle{" "}
