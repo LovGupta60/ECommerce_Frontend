@@ -26,6 +26,7 @@ export default function Home() {
   const offersRef = useRef(null);
   const contactRef = useRef(null);
 
+  // Updated outlets with hardcoded map links
   const outlets = [
     {
       id: 1,
@@ -38,6 +39,7 @@ export default function Home() {
       since: "1970",
       phone: "9415071592",
       email: "sanjay1971.rbl@gmail.com",
+      mapLink: "https://www.google.com/maps/dir/?api=1&destination=26.228279294890175, 81.23618549542488",
     },
     {
       id: 2,
@@ -50,6 +52,7 @@ export default function Home() {
       since: "2011",
       phone: "9415071592",
       email: "sanjay1971.rbl@gmail.com",
+      mapLink: "https://www.google.com/maps/dir/?api=1&destination=26.228279294890175, 81.23618549542488",
     },
     {
       id: 3,
@@ -62,6 +65,7 @@ export default function Home() {
       since: "2017",
       phone: "9415071592",
       email: "sanjay1971.rbl@gmail.com",
+      mapLink: "https://www.google.com/maps/dir/?api=1&destination=26.218367401106622, 81.24252717645338",
     },
   ];
 
@@ -158,81 +162,102 @@ export default function Home() {
           <BrandMarquee />
         </div>
       </header>
+
       <div className="bg-yellow-400 text-indigo-900 font-bold text-center py-3 rounded-lg shadow-lg animate-pulse space-y-2">
-  <p className="text-red-600 text-lg">
-    Lowest Prices in Market & Online, Delivered in 30 Minutes!
-  </p>
-  <div className="flex justify-center gap-4 mt-1">
-    <a
-      href="https://wa.me/919415071592"
-      target="_blank"
-      className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
-    >
-      Order on WhatsApp
-    </a>
-    <a
-      href="tel:9415071592"
-      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-    >
-      Call to Order
-    </a>
-  </div>
-</div>
-
-      {/* Outlets */}
-      <div className="space-y-6 mt-6">
-        <h2 className="text-2xl md:text-3xl font-bold text-center text-indigo-600">
-          Our Outlets
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {outlets.map((outlet) => {
-            const [showDesc, setShowDesc] = useState(false);
-            return (
-              <div
-                key={outlet.id}
-                className={`border rounded-2xl shadow-md p-4 flex flex-col md:flex-row items-start gap-4 bg-white transform transition duration-300 hover:scale-105 hover:shadow-xl cursor-pointer
-                      ${showDesc ? "border-indigo-600 bg-indigo-50" : ""}`}
-              >
-                <div className="relative w-full md:w-40 h-40 overflow-hidden rounded-lg">
-                  <img
-                    src={outlet.photo || "images/default.png"}
-                    alt={outlet.name}
-                    className="w-full h-full object-cover transition duration-300 hover:scale-110"
-                  />
-                </div>
-                <div className="flex-1 space-y-1">
-                  <h3 className="text-lg md:text-xl font-semibold">{outlet.name}</h3>
-                  <p className="text-gray-600 text-sm md:text-base">{outlet.address}</p>
-                  <p className="text-sm md:text-base mt-1">
-                    <strong>Open:</strong> {outlet.openOn}
-                  </p>
-                  <p className="text-sm md:text-base">
-                    <strong>Phone:</strong> {outlet.phone}
-                  </p>
-                  <p className="text-sm md:text-base">
-                    <strong>Email:</strong> {outlet.email}
-                  </p>
-                  <p className="text-sm md:text-base">
-                    <strong>Since:</strong> {outlet.since}
-                  </p>
-
-                  <button
-                    onClick={() => setShowDesc(!showDesc)}
-                    className="mt-2 text-indigo-600 hover:underline text-sm"
-                  >
-                    {showDesc ? "Hide Details" : "View Details"}
-                  </button>
-                  {showDesc && (
-                    <p className="mt-1 text-gray-700 text-sm md:text-base">{outlet.description}</p>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+        <p className="text-red-600 text-lg">
+          Lowest Prices in Market & Online, Delivered in 30 Minutes!
+        </p>
+        <div className="flex justify-center gap-4 mt-1">
+          <a
+            href="https://wa.me/919415071592"
+            target="_blank"
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+          >
+            Order on WhatsApp
+          </a>
+          <a
+            href="tel:9415071592"
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+          >
+            Call to Order
+          </a>
         </div>
       </div>
 
-      {/* Offers */}
+      {/* Outlets */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {outlets.map((outlet) => {
+          const [showDesc, setShowDesc] = useState(false);
+          return (
+            <div
+              key={outlet.id}
+              className={`border rounded-2xl shadow-md p-4 flex flex-col md:flex-row items-start gap-4 bg-white transform transition duration-300 hover:scale-105 hover:shadow-xl cursor-pointer
+                ${showDesc ? "border-indigo-600 bg-indigo-50" : ""}`}
+            >
+              <div className="relative w-full md:w-40 h-40 overflow-hidden rounded-lg">
+                <img
+                  src={outlet.photo || "images/default.png"}
+                  alt={outlet.name}
+                  className="w-full h-full object-cover transition duration-300 hover:scale-110"
+                />
+              </div>
+              <div className="flex-1 space-y-1">
+                <h3 className="text-lg md:text-xl font-semibold">{outlet.name}</h3>
+                <p className="text-gray-600 text-sm md:text-base">{outlet.address}</p>
+
+                {/* Get Directions */}
+                <a
+                  href={outlet.mapLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 mt-1 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-xs md:text-sm"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9 20l-5.447-2.724A2 2 0 013 15.382V5a2 2 0 012-2h14a2 2 0 012 2v10.382a2 2 0 01-1.553 1.894L15 20l-6-3z"
+                    />
+                  </svg>
+                  Click to Get Directions
+                </a>
+
+                <p className="text-sm md:text-base mt-1">
+                  <strong>Open:</strong> {outlet.openOn}
+                </p>
+                <p className="text-sm md:text-base">
+                  <strong>Phone:</strong> {outlet.phone}
+                </p>
+                <p className="text-sm md:text-base">
+                  <strong>Email:</strong> {outlet.email}
+                </p>
+                <p className="text-sm md:text-base">
+                  <strong>Since:</strong> {outlet.since}
+                </p>
+
+                <button
+                  onClick={() => setShowDesc(!showDesc)}
+                  className="mt-2 text-indigo-600 hover:underline text-sm"
+                >
+                  {showDesc ? "Hide Details" : "View Details"}
+                </button>
+                {showDesc && (
+                  <p className="mt-1 text-gray-700 text-sm md:text-base">{outlet.description}</p>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Offers Section */}
       {activeTab === "Offers" && (
         <div ref={offersRef} className="space-y-6 mt-6">
           <h2 className="text-2xl md:text-3xl font-bold text-center text-indigo-600">
@@ -275,7 +300,6 @@ export default function Home() {
                   </p>
 
                   <div className="flex gap-2 mt-2">
-                    {/* View Items */}
                     <button
                       onClick={() =>
                         navigate("/items", { state: { searchQuery: offer.title } })
@@ -284,16 +308,12 @@ export default function Home() {
                     >
                       View Items
                     </button>
-
-                    {/* View Details */}
                     <button
                       onClick={() => setViewingOffer(offer)}
                       className="bg-yellow-500 text-blue-800 px-2 py-1 rounded hover:bg-yellow-400 text-sm"
                     >
                       View Details
                     </button>
-
-                    {/* Admin only: Edit/Delete */}
                     {isAdmin && (
                       <>
                         <button
@@ -330,7 +350,6 @@ export default function Home() {
             />
           )}
 
-          {/* Read-only Offer Details Modal */}
           {viewingOffer && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
               <div className="bg-white p-6 rounded-lg max-w-md w-full relative">
@@ -356,7 +375,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* Contact */}
+      {/* Contact Section */}
       <div ref={contactRef} className="bg-gray-100 p-6 rounded-lg mt-12 space-y-4">
         <h2 className="text-2xl md:text-3xl font-bold text-center text-indigo-600">
           Contact Us
@@ -377,3 +396,4 @@ export default function Home() {
     </div>
   );
 }
+
