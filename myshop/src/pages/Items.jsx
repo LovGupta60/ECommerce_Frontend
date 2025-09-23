@@ -23,6 +23,9 @@ export default function Items() {
   // Price filter state
   const [priceFilter, setPriceFilter] = useState("");
 
+  // 👇 New: Filter toggle state
+  const [showFilters, setShowFilters] = useState(false);
+
   const priceOptions = [
     { label: "Under ₹500", value: 500 },
     { label: "Under ₹1000", value: 1000 },
@@ -124,7 +127,6 @@ export default function Items() {
 
       const matchPrice = !priceFilter || p.price <= Number(priceFilter);
 
-      // Only show in-stock products to normal users
       const matchStock = isAdmin || p.stockQty > 0;
 
       return matchCategory && matchSearch && matchPrice && matchStock;
@@ -177,37 +179,51 @@ export default function Items() {
         className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
       />
 
-      <CategoryTabs
-        categories={categories}
-        active={active}
-        onChange={setActive}
-      />
+      {/* Toggle Filter Button */}
+      <button
+        onClick={() => setShowFilters(!showFilters)}
+        className="mb-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
+      >
+        {showFilters ? "Hide Filters" : "Show Filters"}
+      </button>
 
-      {/* Price Filter Buttons */}
-      <div className="flex flex-wrap gap-2 mt-4">
-        {priceOptions.map((opt) => (
-          <button
-            key={opt.value}
-            onClick={() => setPriceFilter(opt.value)}
-            className={`px-3 py-1 rounded border text-sm ${
-              priceFilter == opt.value
-                ? "bg-blue-600 text-white"
-                : "bg-gray-100 hover:bg-gray-200"
-            }`}
-          >
-            {opt.label}
-          </button>
-        ))}
-        {priceFilter && (
-          <button
-            onClick={() => setPriceFilter("")}
-            className="px-3 py-1 rounded border bg-red-100 hover:bg-red-200 text-sm"
-          >
-            Clear
-          </button>
-        )}
-      </div>
+      {/* Filters (hidden until clicked) */}
+      {showFilters && (
+        <div className="border rounded-lg p-4 bg-gray-50 mb-4">
+          <CategoryTabs
+            categories={categories}
+            active={active}
+            onChange={setActive}
+          />
 
+          {/* Price Filter */}
+          <div className="flex flex-wrap gap-2 mt-4">
+            {priceOptions.map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => setPriceFilter(opt.value)}
+                className={`px-3 py-1 rounded border text-sm ${
+                  priceFilter == opt.value
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 hover:bg-gray-200"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+            {priceFilter && (
+              <button
+                onClick={() => setPriceFilter("")}
+                className="px-3 py-1 rounded border bg-red-100 hover:bg-red-200 text-sm"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Product List */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-4">
         {filtered.map((p) => (
           <div
@@ -216,7 +232,6 @@ export default function Items() {
               !isAdmin && p.stockQty === 0 ? "opacity-50 pointer-events-none" : ""
             }`}
           >
-            {/* Out-of-stock badge for admins */}
             {isAdmin && p.stockQty === 0 && (
               <div className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded">
                 Out of Stock

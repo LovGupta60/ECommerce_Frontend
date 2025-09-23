@@ -188,6 +188,7 @@ export default function Home() {
 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
   {outlets.map((outlet) => {
     const [showDesc, setShowDesc] = useState(false);
+    const [copiedField, setCopiedField] = useState(null); // track which was copied
 
     // Simple open/closed logic (optional)
     const isOpen =
@@ -195,9 +196,10 @@ export default function Home() {
       outlet.openOn?.toLowerCase().includes("open");
 
     // Copy helper
-    const copyToClipboard = (text) => {
+    const copyToClipboard = (text, field) => {
       navigator.clipboard.writeText(text);
-      alert("Copied: " + text);
+      setCopiedField(field);
+      setTimeout(() => setCopiedField(null), 2000); // revert after 2 sec
     };
 
     return (
@@ -264,10 +266,14 @@ export default function Home() {
               {outlet.phone}
             </a>
             <button
-              onClick={() => copyToClipboard(outlet.phone)}
-              className="text-gray-500 hover:text-indigo-600 text-xs"
+              onClick={() => copyToClipboard(outlet.phone, "phone")}
+              className={`text-xs ${
+                copiedField === "phone"
+                  ? "text-green-600 font-medium"
+                  : "text-gray-500 hover:text-indigo-600"
+              }`}
             >
-              📋 Copy
+              {copiedField === "phone" ? "✅ Copied" : "📋 Copy"}
             </button>
           </div>
 
@@ -277,10 +283,14 @@ export default function Home() {
               {outlet.email}
             </a>
             <button
-              onClick={() => copyToClipboard(outlet.email)}
-              className="text-gray-500 hover:text-indigo-600 text-xs"
+              onClick={() => copyToClipboard(outlet.email, "email")}
+              className={`text-xs ${
+                copiedField === "email"
+                  ? "text-green-600 font-medium"
+                  : "text-gray-500 hover:text-indigo-600"
+              }`}
             >
-              📋 Copy
+              {copiedField === "email" ? "✅ Copied" : "📋 Copy"}
             </button>
           </div>
 
