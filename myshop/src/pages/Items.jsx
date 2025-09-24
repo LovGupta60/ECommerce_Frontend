@@ -19,11 +19,30 @@ export default function Items() {
 
   const [isAdmin, setIsAdmin] = useState(false);
   const token = localStorage.getItem("token");
+ useEffect(() => {
+  if (!token) {
+    localStorage.clear();
+    navigate("/login");
+    return;
+  }
 
-  // Price filter state
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    const currentTime = Math.floor(Date.now() / 1000);
+    if (payload.exp && payload.exp < currentTime) {
+      // Token expired
+      localStorage.clear();
+      navigate("/login");
+    }
+  } catch (err) {
+    // Invalid token
+    console.error("Invalid token", err);
+    localStorage.clear();
+    navigate("/login");
+  }
+}, [token, navigate]);
+
   const [priceFilter, setPriceFilter] = useState("");
-
-  // 👇 New: Filter toggle state
   const [showFilters, setShowFilters] = useState(false);
 
   const priceOptions = [
@@ -127,7 +146,7 @@ export default function Items() {
 
       const matchPrice = !priceFilter || p.price <= Number(priceFilter);
 
-      const matchStock = isAdmin || p.stockQty > 0;
+      const matchStock = isAdmin || true; // Show out-of-stock items for users
 
       return matchCategory && matchSearch && matchPrice && matchStock;
     });
@@ -229,10 +248,11 @@ export default function Items() {
           <div
             key={p.id}
             className={`border rounded-lg p-4 bg-white shadow-md relative ${
-              !isAdmin && p.stockQty === 0 ? "opacity-50 pointer-events-none" : ""
+              p.stockQty === 0 ? "opacity-80" : ""
             }`}
           >
-            {isAdmin && p.stockQty === 0 && (
+            {/* 🔴 Out of Stock Badge */}
+            {p.stockQty === 0 && (
               <div className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded">
                 Out of Stock
               </div>
@@ -275,24 +295,29 @@ export default function Items() {
                 </>
               ) : (
                 <>
-                  <button
-                    onClick={() => {
-                      if (!token) {
-                        navigate("/auth");
-                        return;
-                      }
-                      addToCart(p.id, 1);
-                    }}
-                    className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-sm"
-                    disabled={p.stockQty === 0}
-                  >
-                    {p.stockQty === 0 ? "Out of Stock" : "Add to Cart"}
-                  </button>
+                  {p.stockQty > 0 ? (
+                    <button
+                      onClick={() => {
+                        if (!token) {
+                          navigate("/auth");
+                          return;
+                        }
+                        addToCart(p.id, 1);
+                      }}
+                      className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 text-sm"
+                    >
+                      Add to Cart
+                    </button>
+                  ) : (
+                    <span className="text-red-600 font-semibold self-center">
+                      Out of Stock
+                    </span>
+                  )}
                   <button
                     onClick={() => navigate(`/items/${p.id}`)}
                     className="bg-yellow-500 text-blue-800 px-2 py-1 rounded hover:bg-yellow-400 text-sm"
                   >
-                    See More
+                    Get Details
                   </button>
                 </>
               )}
