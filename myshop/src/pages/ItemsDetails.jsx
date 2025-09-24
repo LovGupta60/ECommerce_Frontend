@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import Zoom from "react-medium-image-zoom";
 import "react-medium-image-zoom/dist/styles.css";
 
-export default function ItemDetails() {
+export default function ItemsDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { addToCart } = useCart();
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -17,12 +18,15 @@ export default function ItemDetails() {
   try {
     if (token) {
       const payload = JSON.parse(atob(token.split(".")[1]));
-      isAdmin = Array.isArray(payload.roles) ? payload.roles.includes("ROLE_ADMIN") : payload.roles.toUpperCase() === "ROLE_ADMIN";
+      isAdmin = Array.isArray(payload.roles)
+        ? payload.roles.includes("ROLE_ADMIN")
+        : payload.roles.toUpperCase() === "ROLE_ADMIN";
     }
   } catch (err) {
     console.error("Invalid token", err);
   }
 
+  // Fetch item details
   useEffect(() => {
     const fetchItem = async () => {
       setLoading(true);
@@ -35,6 +39,7 @@ export default function ItemDetails() {
         if (!res.ok) throw new Error("Failed to fetch item");
         const data = await res.json();
         setItem(data);
+        setError(null);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -45,32 +50,60 @@ export default function ItemDetails() {
     fetchItem();
   }, [id, isAdmin, token]);
 
-  if (loading) return <div className="p-10 text-center animate-pulse">Loading item...</div>;
-  if (error) return <div className="p-10 text-center text-red-600">{error}</div>;
+  if (loading)
+    return <div className="p-10 text-center animate-pulse">Loading item...</div>;
+  if (error)
+    return <div className="p-10 text-center text-red-600">{error}</div>;
   if (!item) return <div className="p-10 text-center">Item not found.</div>;
 
-  const imageUrl = item.imagePath?.startsWith("http") ? item.imagePath : `https://demo-deployment-ervl.onrender.com${item.imagePath}`;
+  const imageUrl = item.imagePath?.startsWith("http")
+    ? item.imagePath
+    : `https://demo-deployment-ervl.onrender.com${item.imagePath}`;
+
+  const handleAddToCart = async () => {
+    if (!token) {
+      navigate("/auth");
+      return;
+    }
+    await addToCart(item.id, 1);
+  };
 
   return (
     <div className="w-full max-w-4xl mx-auto p-4 sm:p-6 bg-white rounded-lg shadow-lg">
       {item.imagePath && (
         <Zoom>
-          <img src={imageUrl} alt={item.name} className="w-full max-h-[500px] object-contain rounded-lg shadow-md mb-6" />
+          <img
+            src={imageUrl}
+            alt={item.name}
+            className="w-full max-h-[500px] object-contain rounded-lg shadow-md mb-6"
+          />
         </Zoom>
       )}
+
       <h2 className="text-3xl font-bold mb-2">{item.name}</h2>
-      <p className="text-gray-600 mb-1"><span className="font-semibold">Brand:</span> {item.brand}</p>
-      <p className="text-gray-600 mb-1"><span className="font-semibold">Type:</span> {item.type}</p>
+      <p className="text-gray-600 mb-1">
+        <span className="font-semibold">Brand:</span> {item.brand}
+      </p>
+      <p className="text-gray-600 mb-1">
+        <span className="font-semibold">Type:</span> {item.type}
+      </p>
       <p className="text-gray-700 mb-4">{item.description}</p>
       <p className="text-xl font-semibold mb-2">₹{item.price}</p>
       <p className="text-gray-500 mb-4">Stock: {item.stockQty}</p>
-      {!isAdmin && (
+
+      {/* Add to Cart Button for Users */}
+      {!isAdmin && item.stockQty > 0 && (
         <button
-          onClick={() => addToCart(item)}
+          onClick={handleAddToCart}
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
         >
           Add to Cart
         </button>
+      )}
+
+      {/* Out of Stock Badge */}
+      {!isAdmin && item.stockQty === 0 && (
+        <div className="text-red-600 font-semibold">Out of Stock</div>
       )}
     </div>
   );

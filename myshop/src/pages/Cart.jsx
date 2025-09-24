@@ -1,4 +1,4 @@
-import React, { useState , useEffect } from "react";
+import React, { useState } from "react";
 import { useCart } from "../context/CartContext";
 import { useNavigate } from "react-router-dom";
 
@@ -10,15 +10,6 @@ const Cart = () => {
   const [address, setAddress] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
-
-  // Redirect to login if token missing
-  useEffect(() => {
-    if (!token) {
-      localStorage.clear();
-      navigate("/login");
-    }
-  }, [token, navigate]);
 
   const handleQtyChange = (id, newQty) => {
     if (newQty < 1) return; // prevent zero or negative
@@ -215,4 +206,4 @@ const Cart = () => {
   );
 };
 
-export default Cart;
+export default Cart; 

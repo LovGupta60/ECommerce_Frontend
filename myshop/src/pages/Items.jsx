@@ -19,28 +19,6 @@ export default function Items() {
 
   const [isAdmin, setIsAdmin] = useState(false);
   const token = localStorage.getItem("token");
- useEffect(() => {
-  if (!token) {
-    localStorage.clear();
-    navigate("/login");
-    return;
-  }
-
-  try {
-    const payload = JSON.parse(atob(token.split(".")[1]));
-    const currentTime = Math.floor(Date.now() / 1000);
-    if (payload.exp && payload.exp < currentTime) {
-      // Token expired
-      localStorage.clear();
-      navigate("/login");
-    }
-  } catch (err) {
-    // Invalid token
-    console.error("Invalid token", err);
-    localStorage.clear();
-    navigate("/login");
-  }
-}, [token, navigate]);
 
   const [priceFilter, setPriceFilter] = useState("");
   const [showFilters, setShowFilters] = useState(false);
@@ -317,7 +295,7 @@ export default function Items() {
                     onClick={() => navigate(`/items/${p.id}`)}
                     className="bg-yellow-500 text-blue-800 px-2 py-1 rounded hover:bg-yellow-400 text-sm"
                   >
-                    Get Details
+                    See More
                   </button>
                 </>
               )}

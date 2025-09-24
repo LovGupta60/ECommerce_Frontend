@@ -22,29 +22,6 @@ export default function Home() {
 
   const token = localStorage.getItem("token");
   const isAdmin = localStorage.getItem("isAdmin") === "true";
-  useEffect(() => {
-  if (!token) {
-    localStorage.clear();
-    navigate("/login");
-    return;
-  }
-
-  try {
-    const payload = JSON.parse(atob(token.split(".")[1]));
-    const currentTime = Math.floor(Date.now() / 1000);
-    if (payload.exp && payload.exp < currentTime) {
-      // Token expired
-      localStorage.clear();
-      navigate("/login");
-    }
-  } catch (err) {
-    // Invalid token
-    console.error("Invalid token", err);
-    localStorage.clear();
-    navigate("/login");
-  }
-}, [token, navigate]);
-
 
   const offersRef = useRef(null);
   const contactRef = useRef(null);
@@ -508,5 +485,5 @@ export default function Home() {
 </div>
 </div>
   );
-}
+} 
 
