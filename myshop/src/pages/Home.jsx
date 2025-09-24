@@ -48,7 +48,7 @@ export default function Home() {
       description:
         "Opened in 2011, Gupta Luggage offers a wide variety of stylish and durable bags. Perfect for every occasion and lifestyle, available at the cheapest rates in the market and online!",
       photo: "images/GL.png",
-      openOn: "Tue - Sun: 11:00 AM - 8:30 PM",
+      openOn: "Wed - Mon: 11:00 AM - 8:30 PM",
       since: "2011",
       phone: "9415071592",
       email: "sanjay1971.rbl@gmail.com",

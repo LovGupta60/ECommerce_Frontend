@@ -63,9 +63,16 @@ export default function Navbar() {
 
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3">
-          <div className="hidden sm:flex bg-white text-indigo-600 rounded-full w-10 h-10 sm:items-center sm:justify-center font-bold text-lg shadow-md flex-shrink-0">
-            S
-          </div>
+         <div className="hidden sm:flex w-10 h-10 rounded-full overflow-hidden bg-transparent">
+  <img
+    src="images/logoshop_.png"
+    alt="Logo"
+    className="w-full h-full object-cover object-center scale-125"
+  />
+</div>
+
+
+
           <div>
             <div className="font-bold text-lg text-white leading-tight">Gupta Hosiery & Crockery</div>
             <div className="text-xs text-indigo-200 -mt-0.5">Quality & Service</div>
@@ -165,7 +172,7 @@ export default function Navbar() {
                       className="block px-4 py-2 hover:bg-gray-100 transition"
                       onClick={() => setMenuOpen(false)}
                     >
-                       Failed Search History
+                      Failed Search History
                     </Link>
                   )}
 
@@ -249,7 +256,7 @@ export default function Navbar() {
                     onClick={() => setMobileOpen(false)}
                     className="py-2 border-b"
                   >
-                     Search History
+                    Search History
                   </Link>
                 )}
                 <button
