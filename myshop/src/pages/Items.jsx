@@ -124,11 +124,9 @@ export default function Items() {
 
       const matchPrice = !priceFilter || p.price <= Number(priceFilter);
 
-      const matchStock = isAdmin || true; // Show out-of-stock items for users
-
-      return matchCategory && matchSearch && matchPrice && matchStock;
+      return matchCategory && matchSearch && matchPrice;
     });
-  }, [products, active, search, priceFilter, isAdmin]);
+  }, [products, active, search, priceFilter]);
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this item?")) return;
@@ -168,6 +166,7 @@ export default function Items() {
         )}
       </div>
 
+      {/* Search bar */}
       <input
         type="text"
         value={searchInput}
@@ -184,7 +183,7 @@ export default function Items() {
         {showFilters ? "Hide Filters" : "Show Filters"}
       </button>
 
-      {/* Filters (hidden until clicked) */}
+      {/* Filters Section */}
       {showFilters && (
         <div className="border rounded-lg p-4 bg-gray-50 mb-4">
           <CategoryTabs
@@ -251,10 +250,16 @@ export default function Items() {
             <p className="text-sm text-gray-600">
               {p.brand} - {p.type}
             </p>
-            <p className="text-sm">{p.description}</p>
+            <p className="text-sm whitespace-pre-line">
+  {p.description.split(".").map((line, i) => (
+    line.trim() && <span key={i}>{line.trim()}.<br /></span>
+  ))}
+</p>
+
             <p className="mt-1 font-medium">₹{p.price}</p>
             <p className="text-xs text-gray-500">Stock: {p.stockQty}</p>
 
+            {/* Action Buttons */}
             <div className="flex gap-2 mt-2">
               {isAdmin ? (
                 <>
